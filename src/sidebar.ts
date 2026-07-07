@@ -3,6 +3,7 @@ import { HOUSEWIVES, TIER_COLORS, TIER_LABELS } from './data/housewives';
 import { setActiveFranchise } from './state';
 import { getNews, filterForFranchise } from './news-cache';
 import { getSeasonsForFranchise } from './data/seasons';
+import { setTickerFranchise, resetTicker } from './ticker';
 
 const REGION_LABELS: Record<string, string> = {
   'north-america': 'North America',
@@ -172,8 +173,10 @@ export function openFranchise(f: Franchise) {
 
   sidebar.classList.add('open');
 
-  // Load news async — news cache is shared so second click is instant
+  // Load franchise-specific news in sidebar and update rolling ticker
+  const keywords = buildKeywords(f);
   loadFranchiseNews(f);
+  setTickerFranchise(f.abbr, keywords);
 }
 
 function loadSeasonsPanel(f: Franchise) {
@@ -232,4 +235,5 @@ function loadSeasonsPanel(f: Franchise) {
 
 export function closeSidebar() {
   document.getElementById('sidebar')?.classList.remove('open');
+  resetTicker();
 }

@@ -651,7 +651,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   font-family:'Space Mono',monospace;font-size:8px;font-weight:700;
   letter-spacing:3px;text-transform:uppercase;color:var(--accent);
   border-right:1px solid var(--border2);height:100%;
-  display:flex;align-items:center;white-space:nowrap;background:rgba(181,66,106,.08)
+  display:flex;align-items:center;white-space:nowrap;background:rgba(181,66,106,.08);
+  transition:color .2s
 }
 .ticker-track{flex:1;overflow:hidden;position:relative;height:100%;display:flex;align-items:center}
 .ticker-inner{
@@ -662,6 +663,49 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .ticker-item.accent{color:var(--accent)}
 .ticker-item.gold{color:var(--gold)}
 .ticker-sep{color:var(--muted2);padding:0 4px;opacity:.6}
+button.ticker-news{
+  background:none;border:none;cursor:pointer;text-align:left;
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--text);padding:0 16px;
+  max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  opacity:.85;transition:opacity .15s,color .15s
+}
+button.ticker-news:hover{opacity:1;color:#fff}
+
+/* ── ARTICLE PREVIEW ─────────────────────────────────────────────────── */
+#article-preview{
+  position:fixed;bottom:var(--ticker-h);left:0;right:0;z-index:598;
+  transform:translateY(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);
+  background:#0f0f0f;border-top:1px solid var(--border2);
+  backdrop-filter:blur(20px)
+}
+#article-preview.open{transform:translateY(0)}
+.ap-inner{
+  display:flex;align-items:center;gap:16px;
+  padding:10px 20px;max-width:100%;min-height:52px
+}
+#ap-source{
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--gold);white-space:nowrap;flex-shrink:0
+}
+#ap-headline{
+  flex:1;font-size:12px;line-height:1.45;color:var(--text);
+  overflow:hidden;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical
+}
+.ap-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+#ap-link{
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;
+  text-transform:uppercase;color:var(--accent);text-decoration:none;white-space:nowrap;
+  border:1px solid var(--accent);padding:5px 12px;border-radius:2px;
+  transition:background .15s
+}
+#ap-link:hover{background:rgba(181,66,106,.15)}
+#ap-close{
+  background:none;border:none;color:var(--muted2);cursor:pointer;
+  font-size:14px;line-height:1;padding:4px 6px;transition:color .15s
+}
+#ap-close:hover{color:var(--text)}
 
 /* ── NAV USER CHIP ──────────────────────────────────────────────────── */
 .nav-user-chip{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 8px;border:1px solid var(--border2);border-radius:20px;background:rgba(255,255,255,.04)}
@@ -1182,6 +1226,18 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
 <div id="player-modal-overlay">
   <div id="player-modal-content"></div>
+</div>
+
+<!-- ARTICLE PREVIEW -->
+<div id="article-preview">
+  <div class="ap-inner">
+    <div id="ap-source"></div>
+    <div id="ap-headline"></div>
+    <div class="ap-actions">
+      <a id="ap-link" href="#" target="_blank" rel="noopener">Read full story →</a>
+      <button id="ap-close" title="Close">✕</button>
+    </div>
+  </div>
 </div>
 
 <!-- TICKER -->
