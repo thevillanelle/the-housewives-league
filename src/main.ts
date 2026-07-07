@@ -1,6 +1,10 @@
 import { initGlobe } from './globe';
 import { initSidebar } from './sidebar';
 import { initTicker } from './ticker';
+import { initNav } from './nav';
+import { initUniverse } from './sections/universe';
+import { initFantasy } from './sections/fantasy';
+import { initCalendar } from './sections/calendar';
 import { FRANCHISES } from './data/franchises';
 
 const MESSAGES = [
@@ -18,39 +22,41 @@ function setProgress(pct: number, msg: string) {
   if (msgEl) msgEl.textContent = msg;
 }
 
+function delay(ms: number) {
+  return new Promise<void>(resolve => setTimeout(resolve, ms));
+}
+
 async function boot() {
   setProgress(10, MESSAGES[0]);
-  await delay(200);
+  await delay(180);
 
-  setProgress(35, MESSAGES[1]);
-  initTicker(); // async, runs in background — don't await
-  await delay(200);
+  setProgress(30, MESSAGES[1]);
+  initNav();
+  initTicker();
+  await delay(150);
 
-  setProgress(60, MESSAGES[2]);
+  setProgress(55, MESSAGES[2]);
   initSidebar();
-  await delay(200);
+  initUniverse();
+  initFantasy();
+  initCalendar();
+  await delay(150);
 
-  setProgress(85, MESSAGES[3]);
+  setProgress(80, MESSAGES[3]);
   initGlobe();
-  await delay(300);
+  await delay(320);
 
   setProgress(100, MESSAGES[4]);
-  await delay(400);
+  await delay(380);
 
-  // Update franchise count
   const countEl = document.getElementById('count-num');
   if (countEl) countEl.textContent = String(FRANCHISES.length);
 
-  // Fade out splash
   const splash = document.getElementById('splash');
   if (splash) {
     splash.classList.add('out');
     setTimeout(() => { splash.style.display = 'none'; }, 800);
   }
-}
-
-function delay(ms: number) {
-  return new Promise<void>(resolve => setTimeout(resolve, ms));
 }
 
 boot();
