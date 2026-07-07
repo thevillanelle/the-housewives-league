@@ -29,31 +29,58 @@ function getInitials(name: string): string {
   return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
 }
 
-function renderFranchiseChip() {
-  const chip = document.getElementById('players-franchise-chip');
-  if (!chip) return;
+function setFranchiseFilter(id: string | null) {
+  franchiseFilter = id;
+  setActiveFranchise(id);
 
-  if (franchiseFilter) {
-    const f = getFranchise(franchiseFilter);
-    const name = f?.name ?? franchiseFilter.toUpperCase();
-    const color = f?.color ?? '#b5426a';
-    chip.innerHTML = `
-      <div class="pfc-inner" style="border-color:${color}44;background:${color}11">
-        <span class="pfc-dot" style="background:${color}"></span>
-        <span class="pfc-name" style="color:${color}">${name}</span>
-        <button class="pfc-clear" id="pfc-clear-btn">✕ Show All</button>
-      </div>
-    `;
-    chip.style.display = 'block';
-    document.getElementById('pfc-clear-btn')?.addEventListener('click', () => {
-      franchiseFilter = null;
-      setActiveFranchise(null);
-      renderFranchiseChip();
-      renderGrid();
-    });
-  } else {
-    chip.style.display = 'none';
-  }
+  // sync franchise bar buttons
+  document.querySelectorAll<HTMLElement>('.pfb-btn').forEach(b => {
+    const isActive = b.dataset.franchise === (id ?? 'all');
+    b.classList.toggle('active', isActive);
+    const color = b.dataset.color ?? '';
+    if (isActive && color) {
+      b.style.borderColor = color;
+      b.style.color = color;
+      b.style.background = `${color}22`;
+    } else {
+      b.style.borderColor = '';
+      b.style.color = '';
+      b.style.background = '';
+    }
+  });
+}
+
+function renderFranchiseChip() {
+  // chip is only used for sidebar-navigation context; hide when using inline bar
+  const chip = document.getElementById('players-franchise-chip');
+  if (chip) chip.style.display = 'none';
+}
+
+function initFranchiseBar() {
+  const bar = document.getElementById('players-franchise-bar');
+  if (!bar) return;
+
+  // Collect all franchises that actually have players, sorted by abbr
+  const franchiseIds = [...new Set(HOUSEWIVES.map(h => h.primaryFranchise))];
+  const franchises = franchiseIds
+    .map(id => FRANCHISES.find(f => f.id === id))
+    .filter((f): f is NonNullable<typeof f> => f != null)
+    .sort((a, b) => a.abbr.localeCompare(b.abbr));
+
+  bar.innerHTML = `
+    <button class="pfb-btn active" data-franchise="all">All Franchises</button>
+    ${franchises.map(f =>
+      `<button class="pfb-btn" data-franchise="${f.id}" data-color="${f.color}">${f.abbr}</button>`
+    ).join('')}
+  `;
+
+  bar.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>('.pfb-btn');
+    if (!btn) return;
+    const id = btn.dataset.franchise === 'all' ? null : (btn.dataset.franchise ?? null);
+    setFranchiseFilter(id);
+    renderGrid();
+  });
 }
 
 function renderCard(h: Housewife): string {
@@ -174,6 +201,8 @@ function renderGrid() {
 }
 
 export function initPlayers() {
+  initFranchiseBar();
+
   document.getElementById('players-filter-bar')?.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLElement>('.players-filter-btn');
     if (!btn) return;
@@ -194,7 +223,7 @@ export function initPlayers() {
     if ((e as CustomEvent).detail !== 'players') return;
     const incoming = activeFranchiseId;
     if (incoming && incoming !== franchiseFilter) {
-      franchiseFilter = incoming;
+      setFranchiseFilter(incoming);
       // reset tier filter so franchise context is clean
       activeFilter = 'all';
       document.querySelectorAll('.players-filter-btn').forEach(b => b.classList.remove('active'));
@@ -202,7 +231,6 @@ export function initPlayers() {
       if (searchInput) searchInput.value = '';
       searchQuery = '';
     }
-    renderFranchiseChip();
     renderGrid();
   });
 
