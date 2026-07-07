@@ -1492,16 +1492,6 @@ export const HOUSEWIVES: Housewife[] = [
     careerHighlights: ['Joburg luxury lifestyle representation', 'South African socialite network builder'],
   },
 
-  // ── RHODE ISLAND (newest US franchise) ───────────────────────────────────
-  {
-    id: 'jen-welter', name: 'Jen Welter', slug: 'jen-welter',
-    franchises: ['rhori'], primaryFranchise: 'rhori',
-    status: 'current', debutYear: 2026, seasonsCount: 1,
-    fantasyValue: 450, tier: 'standard',
-    tagline: 'Rhode Island Pioneer',
-    careerHighlights: ['First female NFL coach in history', 'Newest US Housewives franchise trailblazer', 'Season 1 of the most anticipated debut since SLC'],
-  },
-
   // ── ORANGE COUNTY (OG cast) ───────────────────────────────────────────────
   {
     id: 'jo-de-la-rosa', name: 'Jo De La Rosa', slug: 'jo-de-la-rosa',
