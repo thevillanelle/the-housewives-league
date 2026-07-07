@@ -163,6 +163,14 @@ function renderGrid() {
       btn.disabled = true;
     });
   });
+
+  grid.querySelectorAll<HTMLElement>('.player-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('.pc-draft-btn')) return;
+      const id = card.dataset.id!;
+      document.dispatchEvent(new CustomEvent('thl:open-player', { detail: id }));
+    });
+  });
 }
 
 export function initPlayers() {

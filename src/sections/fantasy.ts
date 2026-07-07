@@ -1,32 +1,37 @@
-import { HOUSEWIVES, TIER_COLORS, TIER_LABELS, type Housewife } from '../data/housewives';
+import * as d3 from 'd3';
+import { HOUSEWIVES, TIER_COLORS, TIER_LABELS } from '../data/housewives';
 import { FRANCHISES } from '../data/franchises';
 
 const MAX_ROSTER = 10;
-const roster: Set<string> = new Set();
+export const roster: Set<string> = new Set();
 
-function getFranchiseColor(id: string): string {
-  return FRANCHISES.find(f => f.id === id)?.color ?? '#7a5c68';
-}
+// ── Helpers ────────────────────────────────────────────────────────────────
 
-function getFranchiseAbbr(id: string): string {
-  return FRANCHISES.find(f => f.id === id)?.abbr ?? id.toUpperCase();
-}
-
-function getInitials(name: string): string {
-  return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
-}
+function getFranchise(id: string) { return FRANCHISES.find(f => f.id === id); }
+function getFranchiseColor(id: string) { return getFranchise(id)?.color ?? '#7a5c68'; }
+function getFranchiseAbbr(id: string) { return getFranchise(id)?.abbr ?? id.toUpperCase(); }
+function getInitials(name: string) { return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase(); }
 
 function updateRosterHeader() {
   const el = document.getElementById('roster-count');
   if (el) el.textContent = `${roster.size} / ${MAX_ROSTER} Players Drafted`;
 }
 
+function updateRosterValue() {
+  const el = document.getElementById('roster-value');
+  if (!el) return;
+  const total = HOUSEWIVES.filter(h => roster.has(h.id)).reduce((s, h) => s + h.fantasyValue, 0);
+  el.textContent = total.toLocaleString();
+}
+
+// ── Roster ─────────────────────────────────────────────────────────────────
+
 function renderRosterGrid() {
   const grid = document.getElementById('roster-grid');
   if (!grid) return;
 
   const drafted = HOUSEWIVES.filter(h => roster.has(h.id));
-  const emptySlots = MAX_ROSTER - drafted.length;
+  const empty = MAX_ROSTER - drafted.length;
 
   const draftedHTML = drafted.map(h => {
     const fc = getFranchiseColor(h.primaryFranchise);
@@ -39,53 +44,45 @@ function renderRosterGrid() {
           <div class="rs-avatar" style="border-color:${fc}">${getInitials(h.name)}</div>
           <div class="rs-info">
             <div class="rs-name">${h.name}</div>
-            <div class="rs-meta">
-              <span style="color:${fc};font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase">${abbr}</span>
-              <span style="color:${tc};font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-left:6px">${TIER_LABELS[h.tier]}</span>
-            </div>
+            <div class="rs-meta"><span style="color:${fc}">${abbr}</span><span style="color:${tc};margin-left:6px">${TIER_LABELS[h.tier]}</span></div>
           </div>
           <div class="rs-value">${h.fantasyValue.toLocaleString()}</div>
           <button class="rs-remove" data-id="${h.id}">✕</button>
         </div>
-      </div>
-    `;
+      </div>`;
   }).join('');
 
-  const emptyHTML = Array.from({ length: emptySlots }, (_, i) => `
+  const emptyHTML = Array.from({ length: empty }, (_, i) => `
     <div class="roster-slot empty">
       <div class="rs-icon">◇</div>
       <div class="rs-label">Open Slot ${drafted.length + i + 1}</div>
-    </div>
-  `).join('');
+    </div>`).join('');
 
   grid.innerHTML = draftedHTML + emptyHTML;
-
   grid.querySelectorAll<HTMLElement>('.rs-remove').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', e => {
       e.stopPropagation();
-      const id = btn.dataset.id!;
-      roster.delete(id);
-      renderRosterGrid();
-      renderDraftPool();
-      updateRosterHeader();
-      updateRosterValue();
+      roster.delete(btn.dataset.id!);
+      refresh();
     });
   });
 }
 
-function updateRosterValue() {
-  const el = document.getElementById('roster-value');
-  if (!el) return;
-  const total = HOUSEWIVES.filter(h => roster.has(h.id)).reduce((sum, h) => sum + h.fantasyValue, 0);
-  el.textContent = total.toLocaleString();
+function refresh() {
+  renderRosterGrid();
+  renderDraftPool();
+  updateRosterHeader();
+  updateRosterValue();
+  renderVoting();
 }
+
+// ── Draft Pool ─────────────────────────────────────────────────────────────
 
 function renderDraftPool() {
   const pool = document.getElementById('draft-pool');
   if (!pool) return;
 
-  const available = HOUSEWIVES
-    .filter(h => !roster.has(h.id))
+  const available = HOUSEWIVES.filter(h => !roster.has(h.id))
     .sort((a, b) => b.fantasyValue - a.fantasyValue);
 
   pool.innerHTML = available.map(h => {
@@ -98,72 +95,303 @@ function renderDraftPool() {
         <div class="dp-avatar" style="border-color:${fc}">${getInitials(h.name)}</div>
         <div class="dp-info">
           <div class="dp-name">${h.name}</div>
-          <div class="dp-meta">
-            <span style="color:${fc}">${abbr}</span>
-            <span style="color:${tc};margin-left:6px">${TIER_LABELS[h.tier]}</span>
-          </div>
+          <div class="dp-meta"><span style="color:${fc}">${abbr}</span><span style="color:${tc};margin-left:6px">${TIER_LABELS[h.tier]}</span></div>
         </div>
         <div class="dp-value">${h.fantasyValue.toLocaleString()}</div>
         <button class="dp-draft-btn ${canDraft ? '' : 'disabled'}" data-id="${h.id}" ${canDraft ? '' : 'disabled'}>
           ${canDraft ? 'Draft' : 'Full'}
         </button>
-      </div>
-    `;
+      </div>`;
   }).join('');
 
   pool.querySelectorAll<HTMLElement>('.dp-draft-btn:not(.disabled)').forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', e => {
       e.stopPropagation();
-      const id = btn.dataset.id!;
       if (roster.size >= MAX_ROSTER) return;
-      roster.add(id);
-      renderRosterGrid();
-      renderDraftPool();
-      updateRosterHeader();
-      updateRosterValue();
+      roster.add(btn.dataset.id!);
+      refresh();
     });
   });
 }
 
-function renderVotePanel() {
+// ── Episode Voting ─────────────────────────────────────────────────────────
+
+const VOTE_CATS = [
+  { key: 'mvp', label: 'Episode MVP', pts: 10, desc: 'Who ran this episode?' },
+  { key: 'confessional', label: 'Best Confessional', pts: 5, desc: 'Most iconic talking-head moment' },
+  { key: 'read', label: 'Best Read', pts: 5, desc: 'Who delivered the best read?' },
+  { key: 'moment', label: 'Best Moment', pts: 5, desc: 'The scene everyone will remember' },
+  { key: 'drama', label: 'Drama Impact', pts: 5, desc: 'Biggest story driver this episode' },
+  { key: 'confrontation', label: 'Confrontation Win', pts: 5, desc: 'Who won the confrontation?' },
+];
+
+const votes: Record<string, string> = {};
+let votesSubmitted = false;
+
+function buildPlayerOptions(): string {
+  if (roster.size === 0) {
+    return '<option value="">Draft players first to vote</option>';
+  }
+  const drafted = HOUSEWIVES.filter(h => roster.has(h.id));
+  return '<option value="">— Select a player —</option>' +
+    drafted.map(h => `<option value="${h.id}">${h.name} (${getFranchiseAbbr(h.primaryFranchise)})</option>`).join('');
+}
+
+function renderVoting() {
   const panel = document.getElementById('vote-panel');
   if (!panel) return;
 
-  const categories = [
-    { key: 'mvp', label: 'Episode MVP', pts: 10, desc: 'Who ran this episode?' },
-    { key: 'confessional', label: 'Best Confessional', pts: 5, desc: 'Most iconic talking-head moment' },
-    { key: 'read', label: 'Best Read', pts: 5, desc: 'Who delivered the best read?' },
-    { key: 'moment', label: 'Best Moment', pts: 5, desc: 'The scene everyone will remember' },
-    { key: 'drama', label: 'Drama Impact', pts: 5, desc: 'Biggest story driver this episode' },
-  ];
+  if (votesSubmitted) {
+    const total = Object.values(votes).reduce((sum, pid) => {
+      return sum + (VOTE_CATS.find(c => Object.keys(votes).some(k => votes[k] === pid)) ? 0 : 0);
+    }, 0);
 
+    // tally points per player
+    const tally: Record<string, number> = {};
+    VOTE_CATS.forEach(cat => {
+      const pid = votes[cat.key];
+      if (pid) tally[pid] = (tally[pid] ?? 0) + cat.pts;
+    });
+
+    const resultsHtml = Object.entries(tally)
+      .sort(([, a], [, b]) => b - a)
+      .map(([pid, pts]) => {
+        const h = HOUSEWIVES.find(hw => hw.id === pid);
+        if (!h) return '';
+        const tc = TIER_COLORS[h.tier];
+        return `
+          <div class="vote-result-row">
+            <span class="vr-name">${h.name}</span>
+            <span class="vr-pts" style="color:${tc}">+${pts} pts</span>
+          </div>`;
+      }).join('');
+
+    panel.innerHTML = `
+      <div class="vote-header">
+        <div class="vote-eyebrow">Episode Results</div>
+        <div class="vote-title">Your Votes Submitted</div>
+        <div class="vote-sub">Points will apply at the end of the episode window.</div>
+      </div>
+      <div class="vote-results">
+        <div class="vr-label">Fantasy Points This Episode</div>
+        ${resultsHtml || '<div style="padding:16px 18px;color:var(--muted);font-size:11px">No roster players received votes.</div>'}
+      </div>
+      <div style="padding:16px 18px;border-top:1px solid var(--border)">
+        <button class="pm-draft-btn" id="vote-reset-btn" style="width:100%">Clear & Vote Again</button>
+      </div>`;
+
+    document.getElementById('vote-reset-btn')?.addEventListener('click', () => {
+      votesSubmitted = false;
+      Object.keys(votes).forEach(k => delete votes[k]);
+      renderVoting();
+    });
+    return;
+  }
+
+  const hasRoster = roster.size > 0;
   panel.innerHTML = `
     <div class="vote-header">
       <div class="vote-eyebrow">Community Voting</div>
-      <div class="vote-title">Episode Voting Opens After Airing</div>
-      <div class="vote-sub">Votes determine point allocation. Results finalize 48 hours post-episode.</div>
+      <div class="vote-title">Episode Voting</div>
+      <div class="vote-sub">${hasRoster
+        ? 'Cast your votes. Points apply to your drafted players.'
+        : 'Draft players to your roster first, then vote after each episode.'
+      }</div>
     </div>
     <div class="vote-cats">
-      ${categories.map(c => `
+      ${VOTE_CATS.map(c => `
         <div class="vote-cat">
           <div class="vc-top">
             <span class="vc-label">${c.label}</span>
             <span class="vc-pts">+${c.pts} pts</span>
           </div>
           <div class="vc-desc">${c.desc}</div>
-          <div class="vc-locked">
-            <span class="vc-lock-icon">◈</span> Opens when episode airs
-          </div>
-        </div>
-      `).join('')}
+          ${hasRoster
+            ? `<select class="vote-select" data-cat="${c.key}">
+                ${buildPlayerOptions()}
+               </select>`
+            : `<div class="vc-locked"><span class="vc-lock-icon">◈</span> Draft a roster to vote</div>`
+          }
+        </div>`).join('')}
     </div>
-  `;
+    ${hasRoster ? `
+      <div style="padding:16px 18px;border-top:1px solid var(--border)">
+        <button class="vote-submit-btn" id="vote-submit">Submit Votes</button>
+      </div>` : ''}`;
+
+  panel.querySelectorAll<HTMLSelectElement>('.vote-select').forEach(sel => {
+    sel.value = votes[sel.dataset.cat!] ?? '';
+    sel.addEventListener('change', () => {
+      votes[sel.dataset.cat!] = sel.value;
+    });
+  });
+
+  document.getElementById('vote-submit')?.addEventListener('click', () => {
+    votesSubmitted = true;
+    renderVoting();
+  });
 }
+
+// ── League Creation ─────────────────────────────────────────────────────────
+
+let leagueName = '';
+let leagueMode: 'solo' | 'create' | 'join' | null = null;
+
+function renderLeaguePanel() {
+  const panel = document.getElementById('league-panel');
+  if (!panel) return;
+
+  if (leagueMode === 'solo' || leagueName) {
+    const displayName = leagueName || 'Solo Fantasy Mode';
+    panel.innerHTML = `
+      <div class="league-active">
+        <div class="la-eyebrow">Your League</div>
+        <div class="la-name">${displayName}</div>
+        <div class="la-standings-label">Standings</div>
+        <div class="league-item">
+          <div class="li-rank">1</div>
+          <div class="li-name" style="font-style:italic">You</div>
+          <div class="li-pts">${calcRosterPts()} pts</div>
+        </div>
+        <div class="league-item" style="opacity:.25">
+          <div class="li-rank">2</div>
+          <div class="li-name">Waiting for players…</div>
+          <div class="li-pts">0 pts</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  panel.innerHTML = `
+    <div class="league-setup">
+      <div class="ls-prompt">Ready to compete?</div>
+      <div class="ls-btns">
+        <button class="ls-btn" id="ls-create">Create League</button>
+        <button class="ls-btn ls-btn-sec" id="ls-join">Join League</button>
+        <button class="ls-btn ls-btn-sec" id="ls-solo">Solo Mode</button>
+      </div>
+      <div id="ls-form" style="display:none;margin-top:16px">
+        <input class="ls-input" id="ls-name-input" type="text" placeholder="League name…" maxlength="40">
+        <div class="ls-size-row">
+          <span style="font-size:10px;color:var(--muted)">Size:</span>
+          <button class="ls-size-btn active" data-size="4">4</button>
+          <button class="ls-size-btn" data-size="6">6</button>
+          <button class="ls-size-btn" data-size="8">8</button>
+          <button class="ls-size-btn" data-size="10">10</button>
+        </div>
+        <button class="ls-submit-btn" id="ls-submit">Launch League</button>
+      </div>
+    </div>`;
+
+  document.getElementById('ls-create')?.addEventListener('click', () => {
+    document.getElementById('ls-form')!.style.display = 'block';
+    (document.getElementById('ls-create') as HTMLButtonElement).style.display = 'none';
+  });
+  document.getElementById('ls-solo')?.addEventListener('click', () => {
+    leagueMode = 'solo';
+    renderLeaguePanel();
+  });
+  document.getElementById('ls-join')?.addEventListener('click', () => {
+    document.getElementById('ls-form')!.style.display = 'block';
+    (document.getElementById('ls-create') as HTMLButtonElement).style.display = 'none';
+  });
+  document.getElementById('ls-submit')?.addEventListener('click', () => {
+    const input = document.getElementById('ls-name-input') as HTMLInputElement;
+    leagueName = input.value.trim() || 'My THL League';
+    leagueMode = 'create';
+    renderLeaguePanel();
+  });
+
+  panel.querySelectorAll<HTMLElement>('.ls-size-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      panel.querySelectorAll('.ls-size-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+}
+
+function calcRosterPts(): number {
+  return HOUSEWIVES.filter(h => roster.has(h.id))
+    .reduce((s, h) => s + Math.floor(h.fantasyValue / 100), 0);
+}
+
+// ── Fantasy Analytics (D3) ─────────────────────────────────────────────────
+
+function renderAnalyticsChart() {
+  const el = document.getElementById('fantasy-analytics-chart');
+  if (!el || el.dataset.init) return;
+  el.dataset.init = '1';
+
+  const rosterList = HOUSEWIVES.filter(h => roster.has(h.id))
+    .sort((a, b) => b.fantasyValue - a.fantasyValue);
+
+  if (rosterList.length === 0) {
+    el.innerHTML = '<div style="padding:24px;text-align:center;font-family:Space Mono,monospace;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase">Draft players to see analytics</div>';
+    return;
+  }
+
+  const margin = { top: 8, right: 60, bottom: 8, left: 120 };
+  const width = (el.clientWidth || 400) - margin.left - margin.right;
+  const barH = 22;
+  const height = rosterList.length * (barH + 4);
+
+  d3.select(el).select('svg').remove();
+
+  const svg = d3.select(el).append('svg')
+    .attr('width', '100%')
+    .attr('height', height + margin.top + margin.bottom)
+    .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`);
+
+  const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+  const x = d3.scaleLinear()
+    .domain([0, d3.max(rosterList, d => d.fantasyValue) ?? 1000])
+    .range([0, width]);
+
+  const y = d3.scaleBand<number>()
+    .domain(rosterList.map((_, i) => i))
+    .range([0, height])
+    .padding(0.2);
+
+  g.selectAll('rect').data(rosterList).join('rect')
+    .attr('x', 0).attr('y', (_, i) => y(i) ?? 0)
+    .attr('width', d => x(d.fantasyValue))
+    .attr('height', y.bandwidth())
+    .attr('fill', d => TIER_COLORS[d.tier])
+    .attr('fill-opacity', 0.22)
+    .attr('rx', 2);
+
+  g.selectAll('.bar-border').data(rosterList).join('line')
+    .attr('x1', 0).attr('x2', d => x(d.fantasyValue))
+    .attr('y1', (_, i) => (y(i) ?? 0) + y.bandwidth())
+    .attr('y2', (_, i) => (y(i) ?? 0) + y.bandwidth())
+    .attr('stroke', d => TIER_COLORS[d.tier]).attr('stroke-width', 1).attr('stroke-opacity', 0.5);
+
+  g.selectAll('.name').data(rosterList).join('text')
+    .attr('x', -6).attr('y', (_, i) => (y(i) ?? 0) + y.bandwidth() / 2 + 1)
+    .attr('text-anchor', 'end').attr('dominant-baseline', 'middle')
+    .attr('fill', '#f0e8d8').attr('font-size', '10px').attr('font-family', 'Inter,sans-serif')
+    .text(d => d.name.split(' ')[0] + ' ' + d.name.split(' ').slice(-1)[0]);
+
+  g.selectAll('.val').data(rosterList).join('text')
+    .attr('x', d => x(d.fantasyValue) + 6).attr('y', (_, i) => (y(i) ?? 0) + y.bandwidth() / 2 + 1)
+    .attr('dominant-baseline', 'middle')
+    .attr('fill', d => TIER_COLORS[d.tier]).attr('font-size', '9px')
+    .attr('font-family', 'Space Mono,monospace').attr('font-weight', '700')
+    .text(d => d.fantasyValue.toLocaleString());
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
 
 export function initFantasy() {
   renderRosterGrid();
   renderDraftPool();
-  renderVotePanel();
-  updateRosterHeader();
-  updateRosterValue();
+  renderVoting();
+  renderLeaguePanel();
+
+  document.addEventListener('thl:navigate', (e: Event) => {
+    if ((e as CustomEvent).detail === 'fantasy') {
+      renderAnalyticsChart();
+    }
+  });
 }

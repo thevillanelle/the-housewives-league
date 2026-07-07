@@ -7,6 +7,9 @@ import { initPlayers } from './sections/players';
 import { initFantasy } from './sections/fantasy';
 import { initCalendar } from './sections/calendar';
 import { initNetwork } from './sections/network';
+import { initTimeline } from './sections/timeline';
+import { initAnalytics } from './sections/analytics';
+import { initPlayerModal } from './sections/player-modal';
 import { FRANCHISES } from './data/franchises';
 
 const MESSAGES = [
@@ -43,10 +46,25 @@ async function boot() {
   initPlayers();
   initFantasy();
   initCalendar();
-  // network is lazy — initialized on first Universe visit
+  initPlayerModal();
+
+  // lazy-init D3 visualizations on first visit to avoid layout thrash before section is visible
+  let networkDone = false;
+  let timelineDone = false;
+  let analyticsDone = false;
+
   document.addEventListener('thl:navigate', (e: Event) => {
-    if ((e as CustomEvent).detail === 'universe') initNetwork('network-viz');
+    const section = (e as CustomEvent).detail as string;
+    if (section === 'universe') {
+      if (!networkDone) { initNetwork('network-viz'); networkDone = true; }
+      if (!timelineDone) { initTimeline('timeline-viz'); timelineDone = true; }
+    }
+    if (section === 'fantasy' && !analyticsDone) {
+      initAnalytics('analytics-container');
+      analyticsDone = true;
+    }
   });
+
   await delay(150);
 
   setProgress(80, MESSAGES[3]);

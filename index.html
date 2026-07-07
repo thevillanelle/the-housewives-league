@@ -478,6 +478,154 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .cal-s-stat{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--text);line-height:1}
 .cal-s-sub{font-size:11px;color:var(--muted);margin-top:4px}
 
+/* ── PLAYER PROFILE MODAL ───────────────────────────────────────────── */
+#player-modal-overlay{
+  position:fixed;inset:0;z-index:2000;background:rgba(9,5,10,.88);
+  backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s
+}
+#player-modal-overlay.open{opacity:1;pointer-events:all}
+#player-modal-content{
+  background:var(--panel);border:1px solid var(--border2);
+  max-width:860px;width:calc(100% - 48px);max-height:calc(100vh - 120px);
+  overflow-y:auto;position:relative;animation:fadeUp .25s ease
+}
+#player-modal-content::-webkit-scrollbar{width:4px}
+#player-modal-content::-webkit-scrollbar-thumb{background:var(--border2)}
+.pm-close{
+  position:absolute;top:14px;right:14px;z-index:10;
+  background:transparent;border:1px solid var(--border2);border-radius:50%;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--muted);font-size:14px;transition:all .2s
+}
+.pm-close:hover{color:var(--text);border-color:var(--accent)}
+.pm-layout{display:grid;grid-template-columns:220px 1fr}
+.pm-left{
+  padding:40px 24px;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  background:rgba(255,255,255,.015)
+}
+.pm-avatar-wrap{
+  width:88px;height:88px;border-radius:50%;border:2px solid;
+  display:flex;align-items:center;justify-content:center;margin-bottom:4px
+}
+.pm-avatar{
+  width:80px;height:80px;border-radius:50%;border:2px solid;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:28px;font-weight:700;
+  background:rgba(255,255,255,.04)
+}
+.pm-tier-badge,.pm-status-badge{
+  font-family:'Space Mono',monospace;font-size:8px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border:1px solid;border-radius:20px
+}
+.pm-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;width:100%;margin-top:8px;border:1px solid var(--border)}
+.pm-stat{padding:12px;background:rgba(255,255,255,.02);text-align:center}
+.pm-stat-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text)}
+.pm-stat-lbl{font-family:'Space Mono',monospace;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.pm-draft-btn{
+  width:100%;padding:11px;background:rgba(181,66,106,.1);
+  border:1px solid rgba(181,66,106,.35);border-radius:6px;
+  color:var(--accent);font-size:9px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;font-family:'Space Mono',monospace;
+  transition:all .2s;margin-top:8px
+}
+.pm-draft-btn:hover:not(:disabled){background:rgba(181,66,106,.22);border-color:var(--accent)}
+.pm-draft-btn.drafted{background:rgba(181,66,106,.18);color:var(--accent);opacity:.6}
+.pm-right{padding:40px 32px}
+.pm-eyebrow{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.pm-name{font-family:'Playfair Display',serif;font-size:32px;font-weight:700;line-height:1.1;margin-bottom:10px}
+.pm-tagline{font-size:14px;color:rgba(240,232,216,.45);font-style:italic;margin-bottom:28px;line-height:1.5;border-left:2px solid var(--accent);padding-left:14px}
+.pm-section-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;margin-top:24px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.pm-franchise-history{display:flex;flex-direction:column;gap:4px}
+.pm-franchise-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(255,255,255,.02)}
+.pm-fr-abbr{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;flex-shrink:0;min-width:44px}
+.pm-fr-name{font-size:12px;color:var(--text);flex:1}
+.pm-fr-meta{font-family:'Space Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:1px;flex-shrink:0}
+.pm-highlights{display:flex;flex-direction:column;gap:0}
+.pm-hl-row{display:flex;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px solid var(--border)}
+.pm-hl-num{font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);flex-shrink:0;opacity:.6}
+.pm-hl-text{font-size:12px;color:rgba(240,232,216,.7);line-height:1.5}
+
+/* ── TIMELINE VIZ ────────────────────────────────────────────────────── */
+.timeline-viz{width:100%;height:340px;background:rgba(255,255,255,.01);border:1px solid var(--border);position:relative;overflow:hidden}
+
+/* ── ANALYTICS SECTION ───────────────────────────────────────────────── */
+.analytics-section{margin-top:40px;border-top:1px solid var(--border);padding-top:36px}
+.analytics-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--text);margin-bottom:24px}
+.analytics-title em{color:var(--accent);font-style:italic}
+.analytics-cols{display:grid;grid-template-columns:2fr 1fr;gap:2px}
+.analytics-panel{background:rgba(255,255,255,.02);padding:20px}
+.analytics-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.analytics-tier-panel{}
+.tier-rows{display:flex;flex-direction:column;gap:10px}
+.tier-row{display:flex;align-items:center;gap:10px}
+.tier-name{font-family:'Space Mono',monospace;font-size:8px;font-weight:700;letter-spacing:1px;width:80px;flex-shrink:0}
+.tier-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden}
+.tier-bar{height:100%;border-radius:3px;opacity:.6;transition:width .4s ease}
+.tier-count{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);width:20px;text-align:right}
+
+/* ── VOTING SELECTS ──────────────────────────────────────────────────── */
+.vote-select{
+  width:100%;padding:7px 10px;background:rgba(255,255,255,.04);
+  border:1px solid var(--border2);border-radius:4px;
+  color:var(--text);font-size:11px;font-family:'Inter',sans-serif;
+  outline:none;cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a5c68'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center
+}
+.vote-select option{background:#09050a;color:#f0e8d8}
+.vote-submit-btn{
+  width:100%;padding:11px;background:var(--accent);border:none;border-radius:4px;
+  color:#fff;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;font-family:'Space Mono',monospace;transition:background .2s
+}
+.vote-submit-btn:hover{background:var(--accent2)}
+.vote-results{padding:4px 0}
+.vr-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);padding:12px 18px;border-bottom:1px solid var(--border)}
+.vote-result-row{display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--border)}
+.vr-name{font-size:12px;color:var(--text)}
+.vr-pts{font-family:'Space Mono',monospace;font-size:11px;font-weight:700}
+
+/* ── LEAGUE PANEL ────────────────────────────────────────────────────── */
+.league-setup{padding:16px 18px}
+.ls-prompt{font-size:11px;color:var(--muted);margin-bottom:12px;font-style:italic}
+.ls-btns{display:flex;flex-direction:column;gap:6px}
+.ls-btn{
+  padding:9px 14px;background:rgba(181,66,106,.1);border:1px solid rgba(181,66,106,.3);
+  border-radius:4px;color:var(--accent);font-size:8px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+  font-family:'Space Mono',monospace;transition:all .15s;text-align:left
+}
+.ls-btn:hover{background:rgba(181,66,106,.2)}
+.ls-btn-sec{background:rgba(255,255,255,.03);border-color:var(--border2);color:var(--muted)}
+.ls-btn-sec:hover{color:var(--text);border-color:var(--border2)}
+.ls-input{
+  width:100%;padding:8px 12px;background:rgba(255,255,255,.04);
+  border:1px solid var(--border2);border-radius:4px;
+  color:var(--text);font-size:12px;font-family:'Inter',sans-serif;outline:none
+}
+.ls-size-row{display:flex;align-items:center;gap:6px;margin:10px 0}
+.ls-size-btn{
+  padding:4px 10px;background:rgba(255,255,255,.03);border:1px solid var(--border);
+  border-radius:4px;color:var(--muted);font-size:9px;cursor:pointer;
+  font-family:'Space Mono',monospace;transition:all .15s
+}
+.ls-size-btn.active{background:rgba(181,66,106,.14);border-color:rgba(181,66,106,.4);color:var(--accent)}
+.ls-submit-btn{
+  width:100%;padding:9px;background:var(--accent);border:none;border-radius:4px;
+  color:#fff;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;font-family:'Space Mono',monospace
+}
+.league-active{padding:16px 18px}
+.la-eyebrow{font-family:'Space Mono',monospace;font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.la-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:12px}
+.la-standings-label{font-family:'Space Mono',monospace;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.league-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.li-rank{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--muted);width:20px}
+.li-name{font-size:11px;color:var(--text);flex:1;padding:0 8px}
+.li-pts{font-family:'Space Mono',monospace;font-size:10px;color:var(--gold)}
+
 /* ── TICKER ──────────────────────────────────────────────────────────── */
 #ticker-wrap{
   position:fixed;bottom:0;left:0;right:0;z-index:600;height:var(--ticker-h);
@@ -600,7 +748,18 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
       <button class="uni-filter-btn active-only" data-filter="status-active">Active Only</button>
     </div>
     <div class="uni-grid" id="uni-grid"></div>
+    <!-- Franchise Timeline -->
     <div class="network-section">
+      <div class="network-header">
+        <div class="section-eyebrow" style="margin-bottom:8px">Franchise Timeline</div>
+        <div class="network-title">The <em>Evolution</em></div>
+        <div class="network-sub">Every franchise plotted by debut year — Active, Hiatus, and Cancelled. Colored by region. Hover for details.</div>
+      </div>
+      <div class="timeline-viz" id="timeline-viz"></div>
+    </div>
+
+    <!-- Crossover Network -->
+    <div class="network-section" style="margin-top:40px">
       <div class="network-header">
         <div class="section-eyebrow" style="margin-bottom:8px">Crossover Network</div>
         <div class="network-title">Franchise <em>Connections</em></div>
@@ -674,13 +833,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 
     <!-- 3-col command center -->
     <div class="fantasy-command">
-      <!-- LEFT: My Roster -->
+      <!-- LEFT: My Roster + League -->
       <div class="fc-col fc-roster-col">
         <div class="fc-col-header">
           <span class="fc-col-label">My Roster</span>
-          <span class="fc-col-hint">10 slots · tap ✕ to drop</span>
+          <span class="fc-col-hint">10 slots · ✕ to drop</span>
         </div>
         <div class="roster-grid" id="roster-grid"></div>
+        <div class="fc-col-header" style="margin-top:2px">
+          <span class="fc-col-label">My League</span>
+        </div>
+        <div id="league-panel"></div>
       </div>
 
       <!-- CENTER: Draft Pool -->
@@ -696,7 +859,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
       <div class="fc-col fc-vote-col">
         <div id="vote-panel"></div>
         <div class="fc-scoring-ref">
-          <div class="fc-col-header" style="margin-top:20px">
+          <div class="fc-col-header" style="margin-top:2px">
             <span class="fc-col-label">Scoring Reference</span>
           </div>
           <div class="scoring-ref-rows">
@@ -714,6 +877,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Analytics Section -->
+    <div class="analytics-section">
+      <div class="section-eyebrow" style="margin-bottom:8px">Fantasy Analytics</div>
+      <div class="analytics-title">Roster <em>Intelligence</em></div>
+      <div class="analytics-cols" id="analytics-container"></div>
     </div>
   </div>
 </div>
@@ -754,6 +924,11 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
       </div>
     </div>
   </div>
+</div>
+
+<!-- PLAYER PROFILE MODAL -->
+<div id="player-modal-overlay">
+  <div id="player-modal-content"></div>
 </div>
 
 <!-- TICKER -->
