@@ -292,6 +292,73 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .ds-value{font-size:13px;color:var(--text);margin-top:4px}
 .scoring-ref{}
 
+/* ── PLAYER CARDS ────────────────────────────────────────────────────── */
+.players-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+.players-search-wrap{position:relative;flex:1;max-width:300px}
+.players-search{
+  width:100%;padding:9px 14px 9px 36px;background:rgba(255,255,255,.04);
+  border:1px solid var(--border);border-radius:20px;
+  color:var(--text);font-size:12px;font-family:'Inter',sans-serif;
+  outline:none;transition:border-color .2s
+}
+.players-search:focus{border-color:var(--border2)}
+.players-search::placeholder{color:var(--muted)}
+.ps-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
+.players-filter-bar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.players-filter-btn{
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:20px;padding:5px 14px;font-size:9px;font-weight:700;
+  letter-spacing:2px;text-transform:uppercase;color:var(--muted);
+  cursor:pointer;font-family:'Space Mono',monospace;transition:all .18s
+}
+.players-filter-btn:hover{border-color:var(--border2);color:var(--text)}
+.players-filter-btn.active{background:rgba(181,66,106,.14);border-color:rgba(181,66,106,.4);color:var(--accent)}
+.players-count{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-left:auto}
+.players-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2px}
+.player-card{
+  background:rgba(255,255,255,.02);display:flex;cursor:pointer;
+  transition:background .15s;position:relative;overflow:hidden
+}
+.player-card:hover{background:rgba(255,255,255,.05)}
+.pc-stripe{width:3px;flex-shrink:0;background:var(--fc)}
+.pc-body{flex:1;padding:20px}
+.pc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.pc-avatar{
+  width:48px;height:48px;border-radius:50%;border:2px solid;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-family:'Playfair Display',serif;font-size:16px;font-weight:700;
+  color:var(--text);background:rgba(255,255,255,.04)
+}
+.pc-value-block{text-align:right}
+.pc-value{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--gold);line-height:1}
+.pc-value-label{font-family:'Space Mono',monospace;font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.pc-name{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.2}
+.pc-meta-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pc-franchise{
+  font-family:'Space Mono',monospace;font-size:8px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:8px
+}
+.pc-tier{font-family:'Space Mono',monospace;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.pc-tagline{font-size:11px;color:rgba(240,232,216,.4);font-style:italic;margin-bottom:12px;line-height:1.4}
+.pc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.pc-stat{text-align:center}
+.pc-stat-val{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--text)}
+.pc-stat-lbl{font-family:'Space Mono',monospace;font-size:7px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.pc-stat-status.current{color:#10b981}
+.pc-stat-status.former{color:var(--muted)}
+.pc-stat-status.legend{color:var(--gold)}
+.pc-stat-status.friend_of{color:#60a5fa}
+.pc-highlights{margin-bottom:14px}
+.pc-highlight{font-size:10px;color:rgba(240,232,216,.4);line-height:1.6}
+.pc-draft-btn{
+  width:100%;padding:9px;background:rgba(255,255,255,.04);
+  border:1px solid var(--border2);border-radius:8px;
+  color:var(--muted);font-size:9px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;font-family:'Space Mono',monospace;
+  transition:all .2s
+}
+.pc-draft-btn:hover{background:rgba(181,66,106,.1);color:var(--accent);border-color:rgba(181,66,106,.4)}
+
 /* ── CALENDAR SECTION ────────────────────────────────────────────────── */
 .cal-grid{display:grid;grid-template-columns:1fr 320px;gap:32px}
 .cal-events{}
@@ -452,92 +519,25 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
     <div class="section-header">
       <div class="section-eyebrow">Fantasy Assets</div>
       <h1 class="section-title">The <em>Players</em></h1>
-      <p class="section-sub">Every Housewife is a fantasy asset. Their performance on screen translates directly into points, value, and legacy in the THL universe.</p>
+      <p class="section-sub">Every Housewife is a fantasy asset. Draft them, trade them, watch their value rise and fall with every episode. Fantasy value reflects historical impact, cultural legacy, and current performance.</p>
     </div>
-    <div class="players-stat-row">
-      <div class="pstat">
-        <span class="pstat-num">44</span>
-        <span class="pstat-label">Franchises</span>
+    <div class="players-toolbar">
+      <div class="players-search-wrap">
+        <span class="ps-icon">⌕</span>
+        <input class="players-search" id="players-search" type="text" placeholder="Search players…">
       </div>
-      <div class="pstat">
-        <span class="pstat-num">1,200+</span>
-        <span class="pstat-label">Housewives Ever</span>
+      <div class="players-filter-bar" id="players-filter-bar">
+        <button class="players-filter-btn active" data-filter="all">All Players</button>
+        <button class="players-filter-btn" data-filter="legendary">Legendary</button>
+        <button class="players-filter-btn" data-filter="elite">Elite</button>
+        <button class="players-filter-btn" data-filter="premium">Premium</button>
+        <button class="players-filter-btn" data-filter="current">Current</button>
+        <button class="players-filter-btn" data-filter="legend">Legends</button>
+        <button class="players-filter-btn" data-filter="former">Former</button>
       </div>
-      <div class="pstat">
-        <span class="pstat-num">20</span>
-        <span class="pstat-label">Countries</span>
-      </div>
+      <div class="players-count" id="players-showing"></div>
     </div>
-    <div class="section-rule"></div>
-    <div class="section-eyebrow" style="margin-bottom:16px">THL Scoring System — Per Episode</div>
-    <div class="scoring-grid">
-      <div class="scoring-card">
-        <div class="sc-category">Episode MVP</div>
-        <div class="sc-pts">10 <span>pts</span></div>
-        <div class="sc-desc">First place in community MVP vote</div>
-      </div>
-      <div class="scoring-card">
-        <div class="sc-category">MVP Runner-Up</div>
-        <div class="sc-pts">5 <span>pts</span></div>
-        <div class="sc-desc">Second place MVP vote</div>
-      </div>
-      <div class="scoring-card">
-        <div class="sc-category">Best Confessional</div>
-        <div class="sc-pts">5 <span>pts</span></div>
-        <div class="sc-desc">Voted best individual confessional</div>
-      </div>
-      <div class="scoring-card">
-        <div class="sc-category">Best Moment</div>
-        <div class="sc-pts">5 <span>pts</span></div>
-        <div class="sc-desc">Connected to the winning moment</div>
-      </div>
-      <div class="scoring-card">
-        <div class="sc-category">Best Read</div>
-        <div class="sc-pts">5 <span>pts</span></div>
-        <div class="sc-desc">Delivers the winning read</div>
-      </div>
-      <div class="scoring-card">
-        <div class="sc-category">Drama Impact</div>
-        <div class="sc-pts">5 <span>pts</span></div>
-        <div class="sc-desc">Biggest episode storyline driver</div>
-      </div>
-      <div class="scoring-card">
-        <div class="sc-category">Confrontation Win</div>
-        <div class="sc-pts">5 <span>pts</span></div>
-        <div class="sc-desc">Wins the community confrontation vote</div>
-      </div>
-      <div class="scoring-card">
-        <div class="sc-category">Confrontation Loss</div>
-        <div class="sc-pts">1 <span>pt</span></div>
-        <div class="sc-desc">A great scene requires both players</div>
-      </div>
-      <div class="scoring-card">
-        <div class="sc-category">Fan Momentum Bonus</div>
-        <div class="sc-pts">+3 <span>pts</span></div>
-        <div class="sc-desc">Landslide community voting result</div>
-      </div>
-      <div class="scoring-card" style="border-color:rgba(181,66,106,.25);background:rgba(181,66,106,.04)">
-        <div class="sc-category" style="color:var(--accent)">Season MVP</div>
-        <div class="sc-pts" style="color:var(--text)">25 <span>pts</span></div>
-        <div class="sc-desc">End-of-season community vote</div>
-      </div>
-      <div class="scoring-card" style="border-color:rgba(212,175,55,.2);background:rgba(212,175,55,.03)">
-        <div class="sc-category" style="color:var(--gold)">Best Season</div>
-        <div class="sc-pts" style="color:var(--text)">15 <span>pts</span></div>
-        <div class="sc-desc">Best season-long performance</div>
-      </div>
-      <div class="scoring-card" style="border-color:rgba(212,175,55,.2);background:rgba(212,175,55,.03)">
-        <div class="sc-category" style="color:var(--gold)">Breakout Performance</div>
-        <div class="sc-pts" style="color:var(--text)">10 <span>pts</span></div>
-        <div class="sc-desc">Standout newcomer or return</div>
-      </div>
-    </div>
-    <div class="section-rule"></div>
-    <div class="players-coming">
-      <div class="players-coming-icon">⋆</div>
-      <div class="players-coming-title">Player Profiles Coming Soon</div>
-      <div class="players-coming-sub">Full Housewives database with career timelines, fantasy values, franchise history, and head-to-head stats. Powered by community voting from every episode.</div>
-    </div>
+    <div class="players-grid" id="players-grid"></div>
   </div>
 </div>
 

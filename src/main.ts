@@ -3,6 +3,7 @@ import { initSidebar } from './sidebar';
 import { initTicker } from './ticker';
 import { initNav } from './nav';
 import { initUniverse } from './sections/universe';
+import { initPlayers } from './sections/players';
 import { initFantasy } from './sections/fantasy';
 import { initCalendar } from './sections/calendar';
 import { FRANCHISES } from './data/franchises';
@@ -38,6 +39,7 @@ async function boot() {
   setProgress(55, MESSAGES[2]);
   initSidebar();
   initUniverse();
+  initPlayers();
   initFantasy();
   initCalendar();
   await delay(150);

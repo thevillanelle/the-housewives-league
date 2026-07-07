@@ -87,7 +87,7 @@ export const FRANCHISES: Franchise[] = [
     name: 'The Real Housewives of Miami',
     shortName: 'Miami', abbr: 'RHOM',
     lat: 25.7617, lng: -80.1918,
-    network: 'Bravo / Peacock', debutYear: 2011, status: 'active', seasonsCount: 7,
+    network: 'Bravo / Peacock', debutYear: 2011, status: 'hiatus', seasonsCount: 7,
     region: 'north-america', color: '#06b6d4', country: 'United States',
     description: 'Bilingual, bicultural, and beautiful. Miami brought a heat that no other franchise could match.',
   },
