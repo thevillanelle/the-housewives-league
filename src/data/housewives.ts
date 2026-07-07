@@ -30,7 +30,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'tamra-judge', name: 'Tamra Judge', slug: 'tamra-judge',
     franchises: ['rhoc'], primaryFranchise: 'rhoc',
-    status: 'current', debutYear: 2007, seasonsCount: 13,
+    status: 'current', debutYear: 2007, seasonsCount: 15,
     fantasyValue: 800, tier: 'elite',
     tagline: 'The Taminator',
     careerHighlights: ['Cut It Like a Diamond baptism', 'Season 9 table flip rival', 'Most confrontations in OC history'],
@@ -38,7 +38,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'heather-dubrow', name: 'Heather Dubrow', slug: 'heather-dubrow',
     franchises: ['rhoc'], primaryFranchise: 'rhoc',
-    status: 'current', debutYear: 2012, seasonsCount: 9,
+    status: 'current', debutYear: 2012, seasonsCount: 10,
     fantasyValue: 650, tier: 'premium',
     tagline: 'The Fancy Pants',
     careerHighlights: ['Megahouse reveal', 'Dubrow Keto Cuisine empire', 'Champs-Élysées meltdown'],
@@ -63,7 +63,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'ramona-singer', name: 'Ramona Singer', slug: 'ramona-singer',
     franchises: ['rhony'], primaryFranchise: 'rhony',
-    status: 'current', debutYear: 2008, seasonsCount: 14,
+    status: 'current', debutYear: 2008, seasonsCount: 13,
     fantasyValue: 900, tier: 'legendary',
     tagline: 'Turtle Time',
     careerHighlights: ['Longest-running New York Housewife', 'Pinot Grigio incarnate', 'Iconic turtle time declaration', 'Renewal ceremon walk-out'],
@@ -87,7 +87,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'dorinda-medley', name: 'Dorinda Medley', slug: 'dorinda-medley',
     franchises: ['rhony'], primaryFranchise: 'rhony',
-    status: 'former', debutYear: 2015, lastSeasonYear: 2021, seasonsCount: 6,
+    status: 'former', debutYear: 2015, lastSeasonYear: 2020, seasonsCount: 6,
     fantasyValue: 800, tier: 'elite',
     tagline: 'I Made It Nice',
     careerHighlights: ['"I made it nice" — the phrase of the universe', 'Bluestone Manor host', 'John Mahdessian arc', 'Season 12 undoing'],
@@ -144,7 +144,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'kim-zolciak', name: 'Kim Zolciak-Biermann', slug: 'kim-zolciak',
     franchises: ['rhoa'], primaryFranchise: 'rhoa',
-    status: 'legend', debutYear: 2008, lastSeasonYear: 2022, seasonsCount: 8,
+    status: 'legend', debutYear: 2008, lastSeasonYear: 2022, seasonsCount: 6,
     fantasyValue: 750, tier: 'elite',
     tagline: 'Don\'t Be Tardy',
     careerHighlights: ['"Tardy for the Party" — the song', 'Big Poppa mystery', 'Wigs — an era', 'Don\'t Be Tardy spinoff franchise'],
@@ -251,7 +251,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'larsa-pippen', name: 'Larsa Pippen', slug: 'larsa-pippen',
     franchises: ['rhom'], primaryFranchise: 'rhom',
-    status: 'former', debutYear: 2011, lastSeasonYear: 2012, seasonsCount: 2,
+    status: 'former', debutYear: 2011, lastSeasonYear: 2025, seasonsCount: 5,
     fantasyValue: 600, tier: 'premium',
     tagline: 'The Pippen',
     careerHighlights: ['Scottie Pippen divorce saga', 'Kim Kardashian public friendship fallout', 'Marcus Jordan romance — cultural lightning rod'],
@@ -259,7 +259,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'lisa-hochstein', name: 'Lisa Hochstein', slug: 'lisa-hochstein',
     franchises: ['rhom'], primaryFranchise: 'rhom',
-    status: 'current', debutYear: 2012, seasonsCount: 5,
+    status: 'current', debutYear: 2012, seasonsCount: 6,
     fantasyValue: 600, tier: 'premium',
     tagline: 'The Boob Godfather\'s Wife',
     careerHighlights: ['Lenny Hochstein divorce drama', 'Katharina Mazepa confrontation — season 7 peak', 'Miami\'s glam queen'],
@@ -276,7 +276,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'gizelle-bryant', name: 'Gizelle Bryant', slug: 'gizelle-bryant',
     franchises: ['rhop'], primaryFranchise: 'rhop',
-    status: 'current', debutYear: 2016, seasonsCount: 9,
+    status: 'current', debutYear: 2016, seasonsCount: 10,
     fantasyValue: 800, tier: 'elite',
     tagline: 'The Potomac Pillar',
     careerHighlights: ['Jamal Bryant on-again-off-again arc — multi-season', 'EveryHue Beauty founder', 'Candiace confrontation season 5 — RHOP greatest fight'],
@@ -284,7 +284,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'karen-huger', name: 'Karen Huger', slug: 'karen-huger',
     franchises: ['rhop'], primaryFranchise: 'rhop',
-    status: 'current', debutYear: 2016, seasonsCount: 9,
+    status: 'current', debutYear: 2016, seasonsCount: 10,
     fantasyValue: 750, tier: 'elite',
     tagline: 'The Grand Dame',
     careerHighlights: ['Grand Dame title — self-appointed, universally accepted', 'Ray Huger tax issues arc', 'La Dame fragrance', '"I am Karen Huger" energy'],
@@ -317,7 +317,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'lisa-barlow', name: 'Lisa Barlow', slug: 'lisa-barlow',
     franchises: ['rhoslc'], primaryFranchise: 'rhoslc',
-    status: 'current', debutYear: 2021, seasonsCount: 4,
+    status: 'current', debutYear: 2020, seasonsCount: 5,
     fantasyValue: 650, tier: 'premium',
     tagline: 'FRESH WOLF',
     careerHighlights: ['FRESH WOLF tequila brand', 'Hot mic Meredith rant — most-watched RHOSLC clip', 'John Barlow energy drinks empire'],
@@ -425,7 +425,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'gamble-breaux', name: 'Gamble Breaux', slug: 'gamble-breaux',
     franchises: ['rhome'], primaryFranchise: 'rhome',
-    status: 'legend', debutYear: 2015, lastSeasonYear: 2017, seasonsCount: 3,
+    status: 'legend', debutYear: 2015, lastSeasonYear: 2021, seasonsCount: 3,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Rick Wolfe\'s Wife',
     careerHighlights: ['Most outrageous Melbourne arc', 'Witch costume moment — unforgettable', 'Chateau de Breaux reveal'],
@@ -434,7 +434,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'athena-x', name: 'Athena X Levendi', slug: 'athena-x',
     franchises: ['rhosy'], primaryFranchise: 'rhosy',
-    status: 'legend', debutYear: 2016, lastSeasonYear: 2016, seasonsCount: 1,
+    status: 'legend', debutYear: 2017, lastSeasonYear: 2017, seasonsCount: 1,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Sydney Art World',
     careerHighlights: ['Most eccentric Sydney cast member', 'Art world background', 'One-season legacy'],
@@ -457,27 +457,11 @@ export const HOUSEWIVES: Housewife[] = [
     careerHighlights: ['Wayne Brown marriage spotlight', 'Cheshire social hierarchy navigator', 'Consistent cast presence across 7 seasons'],
   },
   // ── JOHANNESBURG ──────────────────────────────────────────────────────────
-  {
-    id: 'nneka-onuorah', name: 'Nneka Onuorah', slug: 'nneka-onuorah',
-    franchises: ['rhoj'], primaryFranchise: 'rhoj',
-    status: 'legend', debutYear: 2016, lastSeasonYear: 2017, seasonsCount: 2,
-    fantasyValue: 550, tier: 'premium',
-    tagline: 'Jo\'burg Energy',
-    careerHighlights: ['Nigerian heritage storyline', 'Johannesburg fashion scene representation', 'International franchise pioneer'],
-  },
   // ── NAIROBI ───────────────────────────────────────────────────────────────
-  {
-    id: 'sarah-kabu', name: 'Sarah Kabu', slug: 'sarah-kabu',
-    franchises: ['rhonai'], primaryFranchise: 'rhonai',
-    status: 'current', debutYear: 2023, seasonsCount: 2,
-    fantasyValue: 500, tier: 'standard',
-    tagline: 'Nairobi Socialite',
-    careerHighlights: ['Bonfire Adventures travel empire', 'Kenyan social scene powerhouse', 'International franchise expansion vanguard'],
-  },
   // ── CROSSOVER LEGENDS ─────────────────────────────────────────────────────
   {
     id: 'cynthia-bailey', name: 'Cynthia Bailey', slug: 'cynthia-bailey',
-    franchises: ['rhoa', 'rhobh'], primaryFranchise: 'rhoa',
+    franchises: ['rhoa'], primaryFranchise: 'rhoa',
     status: 'legend', debutYear: 2010, lastSeasonYear: 2021, seasonsCount: 11,
     fantasyValue: 700, tier: 'elite',
     tagline: 'The Bailey Agency',
@@ -660,7 +644,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'sanya-richards-ross', name: 'Sanya Richards-Ross', slug: 'sanya-richards-ross',
     franchises: ['rhoa'], primaryFranchise: 'rhoa',
-    status: 'current', debutYear: 2021, seasonsCount: 3,
+    status: 'current', debutYear: 2022, seasonsCount: 2,
     fantasyValue: 500, tier: 'standard',
     tagline: 'Olympic Gold Medalist',
     careerHighlights: ['4x Olympic gold medalist — most decorated cast member in Atlanta history', 'Aaron Ross NFL marriage arc', 'Fertility journey storyline'],
@@ -694,7 +678,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'jennifer-aydin', name: 'Jennifer Aydin', slug: 'jennifer-aydin',
     franchises: ['rhonj'], primaryFranchise: 'rhonj',
-    status: 'current', debutYear: 2018, seasonsCount: 6,
+    status: 'current', debutYear: 2018, seasonsCount: 7,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Turkish Delight',
     careerHighlights: ['Bill Aydin plastic surgeon marriage', 'Margaret Josephs turkey baster fight', 'Most extravagant lifestyle in NJ history', 'The party supplier'],
@@ -754,7 +738,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'robyn-dixon', name: 'Robyn Dixon', slug: 'robyn-dixon',
     franchises: ['rhop'], primaryFranchise: 'rhop',
-    status: 'current', debutYear: 2016, seasonsCount: 9,
+    status: 'current', debutYear: 2016, seasonsCount: 10,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Juan Dixon\'s Ex-Wife',
     careerHighlights: ['Juan Dixon reconciliation arc — multiple seasons', 'Gizelle Bryant ride-or-die alliance', 'Darby hat business', 'NBA adjacent legacy'],
@@ -762,7 +746,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'ashley-darby', name: 'Ashley Darby', slug: 'ashley-darby',
     franchises: ['rhop'], primaryFranchise: 'rhop',
-    status: 'current', debutYear: 2016, seasonsCount: 8,
+    status: 'current', debutYear: 2016, seasonsCount: 10,
     fantasyValue: 600, tier: 'premium',
     tagline: 'Oz Girl in Potomac',
     careerHighlights: ['Australian outsider navigating Potomac society', 'Michael Darby age gap marriage arc', 'Candiace Dillard physical altercation', 'Restaurant Empire co-owner'],
@@ -830,7 +814,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'monica-garcia', name: 'Monica Garcia', slug: 'monica-garcia',
     franchises: ['rhoslc'], primaryFranchise: 'rhoslc',
-    status: 'current', debutYear: 2023, seasonsCount: 2,
+    status: 'former', debutYear: 2023, seasonsCount: 1,
     fantasyValue: 600, tier: 'premium',
     tagline: 'Reality Von Tease',
     careerHighlights: ['Reality Von Tease anonymous gossip account — most dramatic reveal in RHOSLC history', 'SLC\'s most polarizing newcomer', 'Spencer Katsanevas business connection storyline'],
@@ -900,7 +884,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'jackie-gillies', name: 'Jackie Gillies', slug: 'jackie-gillies',
     franchises: ['rhome'], primaryFranchise: 'rhome',
-    status: 'legend', debutYear: 2014, lastSeasonYear: 2016, seasonsCount: 2,
+    status: 'legend', debutYear: 2014, lastSeasonYear: 2021, seasonsCount: 5,
     fantasyValue: 500, tier: 'standard',
     tagline: 'Silverchair\'s Wife',
     careerHighlights: ['Ben Gillies Silverchair drummer wife', 'Spiritual energy reader on the show', 'Gina Liano friendship and fallout', 'Melbourne fan favorite'],
@@ -1002,7 +986,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'heather-thomson', name: 'Heather Thomson', slug: 'heather-thomson',
     franchises: ['rhony'], primaryFranchise: 'rhony',
-    status: 'legend', debutYear: 2012, lastSeasonYear: 2020, seasonsCount: 4,
+    status: 'legend', debutYear: 2012, lastSeasonYear: 2020, seasonsCount: 3,
     fantasyValue: 500, tier: 'standard',
     tagline: 'Yummie by Heather Thomson',
     careerHighlights: ['Yummie shapewear brand founder', 'Jonathan Schindler marriage', 'Consistent RHONY presence across multiple eras', 'Produced some of the franchise\'s most athletic moments'],
@@ -1034,7 +1018,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'brynn-whitfield', name: 'Brynn Whitfield', slug: 'brynn-whitfield',
     franchises: ['rhony'], primaryFranchise: 'rhony',
-    status: 'current', debutYear: 2023, seasonsCount: 2,
+    status: 'former', debutYear: 2023, lastSeasonYear: 2025, seasonsCount: 2,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Trauma and Glam',
     careerHighlights: ['Most compelling backstory of the reboot cast', 'Trauma-informed villain edit arc', 'Jessel Taank conflict', 'Ebullient screen presence'],
@@ -1128,7 +1112,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'dorit-kemsley', name: 'Dorit Kemsley', slug: 'dorit-kemsley',
     franchises: ['rhobh'], primaryFranchise: 'rhobh',
-    status: 'current', debutYear: 2016, seasonsCount: 8,
+    status: 'current', debutYear: 2016, seasonsCount: 9,
     fantasyValue: 600, tier: 'premium',
     tagline: 'Beverly Beach',
     careerHighlights: ['Beverly Beach swimwear brand', 'PJK home invasion robbery — BH\'s most frightening moment', 'Paul "PK" Kemsley bankruptcy arc', 'Most fashion-consistent BH housewife across all seasons'],
@@ -1274,7 +1258,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'taleen-marie', name: 'Taleen Marie', slug: 'taleen-marie',
     franchises: ['rhodu'], primaryFranchise: 'rhodu',
-    status: 'current', debutYear: 2023, seasonsCount: 1,
+    status: 'current', debutYear: 2024, seasonsCount: 1,
     fantasyValue: 420, tier: 'standard',
     tagline: 'Armenian Heat',
     careerHighlights: ['Season 2 newcomer shaking the Dubai dynamic', 'Armenian-American background', 'Immediate cast impact'],
@@ -1478,18 +1462,10 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'brinnette-seopela', name: 'Brinnette Seopela', slug: 'brinnette-seopela',
     franchises: ['rhoj'], primaryFranchise: 'rhoj',
-    status: 'legend', debutYear: 2017, lastSeasonYear: 2018, seasonsCount: 2,
+    status: 'legend', debutYear: 2018, lastSeasonYear: 2019, seasonsCount: 2,
     fantasyValue: 480, tier: 'standard',
     tagline: 'Joburg Diamonds',
     careerHighlights: ['Joburg socialite pioneer', 'South African fashion and beauty mogul', 'International franchise expansion ambassador'],
-  },
-  {
-    id: 'the-real-ann', name: 'Ann', slug: 'ann-joburg',
-    franchises: ['rhoj'], primaryFranchise: 'rhoj',
-    status: 'legend', debutYear: 2017, lastSeasonYear: 2018, seasonsCount: 2,
-    fantasyValue: 440, tier: 'standard',
-    tagline: 'Johannesburg Society',
-    careerHighlights: ['Joburg luxury lifestyle representation', 'South African socialite network builder'],
   },
 
   // ── ORANGE COUNTY (OG cast) ───────────────────────────────────────────────
@@ -1504,7 +1480,7 @@ export const HOUSEWIVES: Housewife[] = [
   {
     id: 'tammy-knickerbocker', name: 'Tammy Knickerbocker', slug: 'tammy-knickerbocker',
     franchises: ['rhoc'], primaryFranchise: 'rhoc',
-    status: 'legend', debutYear: 2006, lastSeasonYear: 2009, seasonsCount: 3,
+    status: 'legend', debutYear: 2007, lastSeasonYear: 2009, seasonsCount: 3,
     fantasyValue: 480, tier: 'standard',
     tagline: 'OC Single Mom Original',
     careerHighlights: ['Original Season 2 housewife', 'Lynne Curtin friendship arc', 'Widowed single mother storyline — most emotional early OC arc', 'Daughter Megan\'s partying subplot'],
