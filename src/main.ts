@@ -6,6 +6,7 @@ import { initUniverse } from './sections/universe';
 import { initPlayers } from './sections/players';
 import { initFantasy } from './sections/fantasy';
 import { initCalendar } from './sections/calendar';
+import { initNetwork } from './sections/network';
 import { FRANCHISES } from './data/franchises';
 
 const MESSAGES = [
@@ -42,6 +43,10 @@ async function boot() {
   initPlayers();
   initFantasy();
   initCalendar();
+  // network is lazy — initialized on first Universe visit
+  document.addEventListener('thl:navigate', (e: Event) => {
+    if ((e as CustomEvent).detail === 'universe') initNetwork('network-viz');
+  });
   await delay(150);
 
   setProgress(80, MESSAGES[3]);

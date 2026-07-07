@@ -256,6 +256,17 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .sc-pts span{font-size:14px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:400}
 .sc-desc{font-size:11px;color:rgba(240,232,216,.5);margin-top:6px;line-height:1.5}
 
+/* ── NETWORK VIZ ─────────────────────────────────────────────────────── */
+.network-section{margin-top:48px;border-top:1px solid var(--border);padding-top:40px}
+.network-header{margin-bottom:24px}
+.network-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:var(--text);line-height:1.2;margin-bottom:8px}
+.network-title em{color:var(--accent);font-style:normal}
+.network-sub{font-size:12px;color:var(--muted);line-height:1.6;max-width:520px}
+.network-viz{
+  width:100%;height:520px;background:rgba(255,255,255,.01);
+  border:1px solid var(--border);position:relative;overflow:hidden
+}
+
 /* ── FANTASY SECTION ─────────────────────────────────────────────────── */
 .fantasy-stat-bar{
   display:flex;align-items:center;gap:0;margin-bottom:24px;
@@ -584,6 +595,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
       <button class="uni-filter-btn active-only" data-filter="status-active">Active Only</button>
     </div>
     <div class="uni-grid" id="uni-grid"></div>
+    <div class="network-section">
+      <div class="network-header">
+        <div class="section-eyebrow" style="margin-bottom:8px">Crossover Network</div>
+        <div class="network-title">Franchise <em>Connections</em></div>
+        <div class="network-sub">Housewives who appeared in multiple franchises create connections in the network. Gold nodes = crossover players. Drag to explore. Scroll to zoom.</div>
+      </div>
+      <div class="network-viz" id="network-viz"></div>
+    </div>
   </div>
 </div>
 

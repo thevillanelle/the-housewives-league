@@ -28,6 +28,8 @@ export function navigateTo(section: Section) {
   if (section !== 'globe') {
     document.getElementById('sidebar')?.classList.remove('open');
   }
+
+  document.dispatchEvent(new CustomEvent('thl:navigate', { detail: section }));
 }
 
 export function getCurrentSection() {
