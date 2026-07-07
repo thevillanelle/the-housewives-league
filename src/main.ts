@@ -10,6 +10,8 @@ import { initNetwork } from './sections/network';
 import { initTimeline } from './sections/timeline';
 import { initAnalytics } from './sections/analytics';
 import { initPlayerModal } from './sections/player-modal';
+import { initRelationships } from './sections/relationships';
+import { initAuth } from './auth';
 import { FRANCHISES } from './data/franchises';
 
 const MESSAGES = [
@@ -41,6 +43,7 @@ async function boot() {
   await delay(150);
 
   setProgress(55, MESSAGES[2]);
+  initAuth();
   initSidebar();
   initUniverse();
   initPlayers();
@@ -53,6 +56,8 @@ async function boot() {
   let timelineDone = false;
   let analyticsDone = false;
 
+  let relationshipsDone = false;
+
   document.addEventListener('thl:navigate', (e: Event) => {
     const section = (e as CustomEvent).detail as string;
     if (section === 'universe') {
@@ -62,6 +67,10 @@ async function boot() {
     if (section === 'fantasy' && !analyticsDone) {
       initAnalytics('analytics-container');
       analyticsDone = true;
+    }
+    if (section === 'players' && !relationshipsDone) {
+      initRelationships('rel-viz-container');
+      relationshipsDone = true;
     }
   });
 

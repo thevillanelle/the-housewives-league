@@ -1,6 +1,31 @@
 import * as d3 from 'd3';
 import { HOUSEWIVES, TIER_COLORS, TIER_LABELS } from '../data/housewives';
 import { FRANCHISES } from '../data/franchises';
+import { renderTrades } from './trades';
+
+// ── Episode log (localStorage persistence) ─────────────────────────────────
+
+const LOG_KEY = 'thl_ep_log';
+
+interface VoteSession {
+  ep: number;
+  tally: Record<string, number>;
+  submittedAt: string;
+}
+
+function getLog(): VoteSession[] {
+  try { return JSON.parse(localStorage.getItem(LOG_KEY) ?? '[]'); }
+  catch { return []; }
+}
+
+function saveLog(sessions: VoteSession[]) {
+  try { localStorage.setItem(LOG_KEY, JSON.stringify(sessions)); } catch {}
+}
+
+function getNextEp(): number {
+  const log = getLog();
+  return log.length + 1;
+}
 
 const MAX_ROSTER = 10;
 export const roster: Set<string> = new Set();
@@ -188,6 +213,8 @@ function renderVoting() {
     return;
   }
 
+
+
   const hasRoster = roster.size > 0;
   panel.innerHTML = `
     <div class="vote-header">
@@ -228,6 +255,15 @@ function renderVoting() {
 
   document.getElementById('vote-submit')?.addEventListener('click', () => {
     votesSubmitted = true;
+    // Tally and persist to episode log
+    const tally: Record<string, number> = {};
+    VOTE_CATS.forEach(cat => {
+      const pid = votes[cat.key];
+      if (pid) tally[pid] = (tally[pid] ?? 0) + cat.pts;
+    });
+    const log = getLog();
+    log.push({ ep: getNextEp(), tally, submittedAt: new Date().toISOString() });
+    saveLog(log);
     renderVoting();
   });
 }
@@ -315,6 +351,125 @@ function calcRosterPts(): number {
     .reduce((s, h) => s + Math.floor(h.fantasyValue / 100), 0);
 }
 
+// ── Episode Log ────────────────────────────────────────────────────────────
+
+export function renderEpisodeLog() {
+  const panel = document.getElementById('episode-log-panel');
+  if (!panel) return;
+
+  const log = getLog();
+
+  if (log.length === 0) {
+    panel.innerHTML = `
+      <div class="elog-empty">
+        <div class="elog-empty-icon">◇</div>
+        <div class="elog-empty-msg">No episodes logged yet</div>
+        <div class="elog-empty-sub">Submit your episode votes in the Command Center to begin tracking fantasy points</div>
+      </div>`;
+    return;
+  }
+
+  const allTimeTotals: Record<string, number> = {};
+  log.forEach(session => {
+    Object.entries(session.tally).forEach(([pid, pts]) => {
+      allTimeTotals[pid] = (allTimeTotals[pid] ?? 0) + pts;
+    });
+  });
+
+  const sorted = Object.entries(allTimeTotals).sort(([, a], [, b]) => b - a);
+
+  const leaderboard = sorted.slice(0, 10).map(([pid, pts], i) => {
+    const h = HOUSEWIVES.find(hw => hw.id === pid);
+    if (!h) return '';
+    const tc = TIER_COLORS[h.tier];
+    const fc = getFranchiseColor(h.primaryFranchise);
+    return `
+      <div class="elog-ldr-row">
+        <div class="elr-rank">${i + 1}</div>
+        <div class="elr-avatar" style="border-color:${fc}">${getInitials(h.name)}</div>
+        <div class="elr-name">${h.name}</div>
+        <div class="elr-pts" style="color:${tc}">+${pts} pts</div>
+      </div>`;
+  }).join('');
+
+  const sessionHistory = [...log].reverse().map((s, i) => {
+    const epNum = log.length - i;
+    const topPids = Object.entries(s.tally).sort(([, a], [, b]) => b - a).slice(0, 3);
+    const mvp = topPids[0] ? HOUSEWIVES.find(h => h.id === topPids[0][0]) : null;
+    return `
+      <div class="elog-session">
+        <div class="els-header">
+          <span class="els-ep">Episode ${epNum}</span>
+          <span class="els-date">${new Date(s.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+        </div>
+        ${topPids.map(([pid, pts]) => {
+          const h = HOUSEWIVES.find(hw => hw.id === pid);
+          if (!h) return '';
+          const tc = TIER_COLORS[h.tier];
+          return `<div class="els-row"><span class="els-name">${h.name}</span><span style="color:${tc}">+${pts} pts</span></div>`;
+        }).join('')}
+        ${topPids.length === 0 ? '<div class="els-row" style="color:var(--muted)">No roster players voted</div>' : ''}
+      </div>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="elog-layout">
+      <div class="elog-col">
+        <div class="elog-col-header">
+          <span class="elog-col-label">Season Leaderboard</span>
+          <span class="elog-col-hint">${log.length} episode${log.length !== 1 ? 's' : ''} tracked</span>
+        </div>
+        <div class="elog-leaderboard">${leaderboard || '<div style="padding:16px;color:var(--muted);font-size:11px">No roster players scored yet</div>'}</div>
+        <button class="elog-clear-btn" id="elog-clear">Clear All Episode Data</button>
+      </div>
+      <div class="elog-col">
+        <div class="elog-col-header">
+          <span class="elog-col-label">Episode History</span>
+        </div>
+        <div class="elog-sessions">${sessionHistory}</div>
+      </div>
+    </div>`;
+
+  document.getElementById('elog-clear')?.addEventListener('click', () => {
+    if (confirm('Clear all episode voting history?')) {
+      saveLog([]);
+      votesSubmitted = false;
+      Object.keys(votes).forEach(k => delete votes[k]);
+      renderEpisodeLog();
+    }
+  });
+}
+
+// ── Tab Manager ─────────────────────────────────────────────────────────────
+
+function initTabs() {
+  document.querySelectorAll<HTMLElement>('.ft-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.ft-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab!;
+
+      const panelIds = ['fp-command', 'fp-trades', 'fp-log'];
+      panelIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+
+      const active = document.getElementById(`fp-${tab}`);
+      if (active) active.style.display = '';
+
+      if (tab === 'trades') renderTrades();
+      if (tab === 'log') renderEpisodeLog();
+      if (tab === 'command') { renderRosterGrid(); renderDraftPool(); updateRosterHeader(); updateRosterValue(); }
+    });
+  });
+
+  // Listen for trade completions from trades module
+  document.addEventListener('thl:trade-complete', () => {
+    refresh();
+  });
+}
+
 // ── Fantasy Analytics (D3) ─────────────────────────────────────────────────
 
 function renderAnalyticsChart() {
@@ -384,6 +539,7 @@ function renderAnalyticsChart() {
 // ── Init ───────────────────────────────────────────────────────────────────
 
 export function initFantasy() {
+  initTabs();
   renderRosterGrid();
   renderDraftPool();
   renderVoting();

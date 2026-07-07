@@ -2,6 +2,7 @@ import { type Franchise } from './data/franchises';
 import { HOUSEWIVES, TIER_COLORS, TIER_LABELS } from './data/housewives';
 import { setActiveFranchise } from './state';
 import { getNews, filterForFranchise } from './news-cache';
+import { getSeasonsForFranchise } from './data/seasons';
 
 const REGION_LABELS: Record<string, string> = {
   'north-america': 'North America',
@@ -166,10 +167,67 @@ export function openFranchise(f: Franchise) {
     }
   }
 
+  // Seasons panel
+  loadSeasonsPanel(f);
+
   sidebar.classList.add('open');
 
   // Load news async — news cache is shared so second click is instant
   loadFranchiseNews(f);
+}
+
+function loadSeasonsPanel(f: Franchise) {
+  const el = document.getElementById('sb-seasons-panel');
+  if (!el) return;
+
+  const data = getSeasonsForFranchise(f.id);
+  if (!data || data.seasons.length === 0) {
+    el.style.display = 'none';
+    return;
+  }
+
+  el.style.display = 'block';
+
+  const currentSeason = data.seasons.find(s => s.status === 'current');
+  const seasons = [...data.seasons].reverse(); // newest first
+
+  el.innerHTML = `
+    <div class="sb-seasons-label">Season History</div>
+    ${currentSeason ? `
+      <div class="sb-seasons-current">
+        <span class="sbc-badge">NOW</span>
+        Season ${currentSeason.season} · ${currentSeason.year} · ${currentSeason.episodes} eps
+      </div>` : ''}
+    <div class="sb-seasons-list" id="sb-seasons-list">
+      ${seasons.slice(0, 6).map(s => `
+        <div class="sb-season-row ${s.status}">
+          <div class="ssr-num">S${s.season}</div>
+          <div class="ssr-info">
+            <div class="ssr-year">${s.year}</div>
+            <div class="ssr-eps">${s.episodes} episodes</div>
+          </div>
+          <div class="ssr-story">${s.storyline}</div>
+        </div>`).join('')}
+      ${seasons.length > 6 ? `
+        <div class="sb-seasons-more" id="sb-seasons-more-btn" style="cursor:pointer">
+          + ${seasons.length - 6} more seasons
+        </div>` : ''}
+    </div>`;
+
+  document.getElementById('sb-seasons-more-btn')?.addEventListener('click', (e) => {
+    const btn = e.currentTarget as HTMLElement;
+    const list = document.getElementById('sb-seasons-list');
+    if (!list) return;
+    list.innerHTML = seasons.map(s => `
+      <div class="sb-season-row ${s.status}">
+        <div class="ssr-num">S${s.season}</div>
+        <div class="ssr-info">
+          <div class="ssr-year">${s.year}</div>
+          <div class="ssr-eps">${s.episodes} episodes</div>
+        </div>
+        <div class="ssr-story">${s.storyline}</div>
+      </div>`).join('');
+  });
 }
 
 export function closeSidebar() {
