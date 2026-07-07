@@ -6,7 +6,7 @@
 <title>The Housewives League — The Global Housewives Universe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -24,6 +24,7 @@
   --gold-dim:#6b570f;
 }
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Inter',sans-serif;color:var(--text)}
+.serif{font-family:'Playfair Display',serif}
 
 /* ── GLOBE ─────────────────────────────────────────────────────────── */
 #globe-wrap{position:fixed;inset:0;z-index:0}
@@ -41,7 +42,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   text-transform:uppercase;color:var(--muted);
 }
 .sp-logo{
-  font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:600;
+  font-family:'Playfair Display',serif;font-size:52px;font-weight:600;
   letter-spacing:10px;text-transform:uppercase;color:var(--text);
   line-height:1
 }
@@ -63,7 +64,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   display:flex;align-items:center;padding:0 20px;gap:16px
 }
 .t-logo{
-  font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;
+  font-family:'Playfair Display',serif;font-size:20px;font-weight:600;
   letter-spacing:5px;text-transform:uppercase;color:var(--text);flex-shrink:0
 }
 .t-logo em{color:var(--accent);font-style:normal}
@@ -131,7 +132,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   letter-spacing:3px;text-transform:uppercase;margin-bottom:6px
 }
 .sb-name{
-  font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;
+  font-family:'Playfair Display',serif;font-size:28px;font-weight:600;
   line-height:1.15;color:var(--text);margin-bottom:4px
 }
 .sb-location{
@@ -151,7 +152,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .sb-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
 .sb-meta-item{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:14px}
 .sb-meta-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:6px}
-.sb-meta-value{font-size:18px;font-weight:600;font-family:'Cormorant Garamond',serif;color:var(--text)}
+.sb-meta-value{font-size:18px;font-weight:600;font-family:'Playfair Display',serif;color:var(--text)}
 .sb-meta-sub{font-size:10px;color:var(--muted);margin-top:1px}
 .sb-desc{font-size:13px;line-height:1.7;color:rgba(240,232,216,.7);margin-bottom:28px}
 .sb-network{
@@ -185,12 +186,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   border-right:1px solid var(--border2);height:100%;
   display:flex;align-items:center;white-space:nowrap;background:rgba(181,66,106,.08)
 }
-.ticker-track{flex:1;overflow:hidden;position:relative}
+.ticker-track{flex:1;overflow:hidden;position:relative;height:100%;display:flex;align-items:center}
 .ticker-inner{
-  display:inline-flex;align-items:center;white-space:nowrap;
-  animation:ticker-scroll 80s linear infinite
+  display:flex;align-items:center;white-space:nowrap;flex-shrink:0;
+  animation:tscroll 90s linear infinite;
+  will-change:transform
 }
-@keyframes ticker-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes tscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 .ticker-item{
   font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;
   text-transform:uppercase;color:var(--muted);padding:0 20px
@@ -220,7 +222,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
   font-family:'Space Mono',monospace;font-size:9px;
   letter-spacing:2px;color:var(--muted);text-transform:uppercase
 }
-#franchise-count strong{color:var(--text);font-size:20px;display:block;margin-bottom:2px;font-family:'Cormorant Garamond',serif;font-weight:600;letter-spacing:1px}
+#franchise-count strong{color:var(--text);font-size:20px;display:block;margin-bottom:2px;font-family:'Playfair Display',serif;font-weight:600;letter-spacing:1px}
 </style>
 </head>
 <body>

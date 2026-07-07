@@ -1,37 +1,20 @@
-const ITEMS = [
+interface NewsItem {
+  headline: string;
+  source: string;
+}
+
+const FALLBACK_ITEMS = [
   { text: 'THE HOUSEWIVES LEAGUE', cls: 'accent' },
   { text: '·', cls: 'sep' },
   { text: 'The global fantasy sports layer for reality television', cls: '' },
   { text: '·', cls: 'sep' },
-  { text: 'RHOC', cls: 'gold' },
+  { text: 'RHOC · RHONY · RHOA · RHONJ · RHOBH · RHOM · RHOP · RHOSLC · RHODubai · RHORI', cls: 'gold' },
   { text: '·', cls: 'sep' },
-  { text: 'RHONY', cls: 'gold' },
+  { text: 'Melbourne · Sydney · Auckland · Cheshire · London · Amsterdam · Antwerp', cls: 'gold' },
   { text: '·', cls: 'sep' },
-  { text: 'RHOA', cls: 'gold' },
+  { text: 'Johannesburg · Durban · Lagos · Nairobi · Cape Town · Pretoria', cls: 'gold' },
   { text: '·', cls: 'sep' },
-  { text: 'RHONJ', cls: 'gold' },
-  { text: '·', cls: 'sep' },
-  { text: 'RHOBH', cls: 'gold' },
-  { text: '·', cls: 'sep' },
-  { text: 'RHOM', cls: 'gold' },
-  { text: '·', cls: 'sep' },
-  { text: 'RHOP', cls: 'gold' },
-  { text: '·', cls: 'sep' },
-  { text: 'RHOSLC', cls: 'gold' },
-  { text: '·', cls: 'sep' },
-  { text: 'RHODubai', cls: 'gold' },
-  { text: '·', cls: 'sep' },
-  { text: 'RHOM AU', cls: 'gold' },
-  { text: '·', cls: 'sep' },
-  { text: 'RHOJ', cls: 'gold' },
-  { text: '·', cls: 'sep' },
-  { text: 'RHOL', cls: 'gold' },
-  { text: '·', cls: 'sep' },
-  { text: 'RHOCH', cls: 'gold' },
-  { text: '·', cls: 'sep' },
-  { text: 'RHOSP', cls: 'gold' },
-  { text: '·', cls: 'sep' },
-  { text: 'RHOS SG', cls: 'gold' },
+  { text: 'Athens · Naples · Rome · Munich · Warsaw · Budapest · Ljubljana · Helsinki', cls: 'gold' },
   { text: '·', cls: 'sep' },
   { text: 'Watch the world', cls: '' },
   { text: '·', cls: 'sep' },
@@ -39,22 +22,59 @@ const ITEMS = [
   { text: '·', cls: 'sep' },
   { text: 'Build the dynasty', cls: 'accent' },
   { text: '·', cls: 'sep' },
-  { text: '25 Franchises · 7 Regions · 1 Universe', cls: '' },
+  { text: '44 Franchises · 7 Regions · 1 Universe', cls: '' },
   { text: '·', cls: 'sep' },
 ];
 
-export function initTicker() {
-  const inner = document.getElementById('ticker-inner');
-  if (!inner) return;
-
-  // Double the items so the seamless loop works
-  const allItems = [...ITEMS, ...ITEMS];
-
-  inner.innerHTML = allItems
+function buildItemsHTML(items: { text: string; cls: string }[]): string {
+  return items
     .map(item =>
       item.cls === 'sep'
         ? `<span class="ticker-sep">${item.text}</span>`
         : `<span class="ticker-item${item.cls ? ' ' + item.cls : ''}">${item.text}</span>`
     )
     .join('');
+}
+
+function renderFallback(inner: HTMLElement) {
+  const doubled = [...FALLBACK_ITEMS, ...FALLBACK_ITEMS];
+  inner.innerHTML = buildItemsHTML(doubled);
+}
+
+function renderLiveNews(inner: HTMLElement, news: NewsItem[]) {
+  const items: { text: string; cls: string }[] = [];
+
+  for (const n of news) {
+    items.push({ text: n.headline, cls: '' });
+    items.push({ text: `— ${n.source}`, cls: 'gold' });
+    items.push({ text: '·', cls: 'sep' });
+  }
+
+  // Append franchise universe items at the end
+  items.push(...FALLBACK_ITEMS);
+
+  // Double for seamless loop
+  const doubled = [...items, ...items];
+  inner.innerHTML = buildItemsHTML(doubled);
+}
+
+export async function initTicker() {
+  const inner = document.getElementById('ticker-inner');
+  if (!inner) return;
+
+  // Show fallback immediately so ticker starts moving
+  renderFallback(inner);
+
+  // Fetch live news in background
+  try {
+    const res = await fetch('/api/news');
+    if (res.ok) {
+      const data = await res.json() as { items: NewsItem[] };
+      if (data.items && data.items.length > 0) {
+        renderLiveNews(inner, data.items);
+      }
+    }
+  } catch {
+    // Fallback already displayed — nothing to do
+  }
 }

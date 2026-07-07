@@ -23,7 +23,7 @@ async function boot() {
   await delay(200);
 
   setProgress(35, MESSAGES[1]);
-  initTicker();
+  initTicker(); // async, runs in background — don't await
   await delay(200);
 
   setProgress(60, MESSAGES[2]);
