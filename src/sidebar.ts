@@ -1,5 +1,6 @@
 import { type Franchise } from './data/franchises';
 import { HOUSEWIVES, TIER_COLORS, TIER_LABELS } from './data/housewives';
+import { setActiveFranchise } from './state';
 
 const REGION_LABELS: Record<string, string> = {
   'north-america': 'North America',
@@ -20,6 +21,7 @@ export function initSidebar() {
 }
 
 export function openFranchise(f: Franchise) {
+  setActiveFranchise(f.id);
   const sidebar = document.getElementById('sidebar')!;
 
   (document.getElementById('sb-region') as HTMLElement).textContent =
