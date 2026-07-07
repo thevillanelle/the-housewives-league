@@ -3,7 +3,8 @@ import { HOUSEWIVES, TIER_COLORS } from '../data/housewives';
 import { FRANCHISES } from '../data/franchises';
 import { RELATIONSHIPS, REL_COLORS, REL_LABELS, type RelationType } from '../data/relationships';
 
-let activeFilter: string = 'all';
+let activeRelFilter: string = 'all';
+let activeFranchiseFilter: string = 'all';
 let initialized = false;
 
 function getFranchiseColor(id: string) {
@@ -14,12 +15,22 @@ function getInitials(name: string) {
   return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
 }
 
+function getRepresentedFranchises() {
+  const ids = [...new Set(RELATIONSHIPS.map(r => r.franchise))];
+  return ids
+    .map(id => FRANCHISES.find(f => f.id === id))
+    .filter((f): f is NonNullable<typeof f> => f != null)
+    .sort((a, b) => a.abbr.localeCompare(b.abbr));
+}
+
 export function initRelationships(containerId: string) {
   if (initialized) return;
   initialized = true;
 
   const el = document.getElementById(containerId);
   if (!el) return;
+
+  const franchises = getRepresentedFranchises();
 
   el.innerHTML = `
     <div class="rel-toolbar">
@@ -31,6 +42,12 @@ export function initRelationships(containerId: string) {
         <button class="rf-btn friend" data-filter="friend">Friends</button>
         <button class="rf-btn former_friend" data-filter="former_friend">Former Friends</button>
         <button class="rf-btn family" data-filter="family">Family</button>
+      </div>
+      <div class="rel-franchise-filters" id="rel-franchise-filters">
+        <button class="rf-btn rf-franchise active" data-franchise="all">All Franchises</button>
+        ${franchises.map(f => `
+          <button class="rf-btn rf-franchise" data-franchise="${f.id}" data-color="${f.color}">${f.abbr}</button>
+        `).join('')}
       </div>
       <div class="rel-legend">
         ${Object.entries(REL_LABELS).map(([type, label]) => `
@@ -45,9 +62,29 @@ export function initRelationships(containerId: string) {
 
   document.getElementById('rel-filters')?.querySelectorAll<HTMLElement>('.rf-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.rf-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#rel-filters .rf-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      activeFilter = btn.dataset.filter!;
+      activeRelFilter = btn.dataset.filter!;
+      drawViz(containerId);
+    });
+  });
+
+  document.getElementById('rel-franchise-filters')?.querySelectorAll<HTMLElement>('.rf-franchise').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll<HTMLElement>('.rf-franchise').forEach(b => {
+        b.classList.remove('active');
+        b.style.borderColor = '';
+        b.style.color = '';
+        b.style.background = '';
+      });
+      btn.classList.add('active');
+      const color = btn.dataset.color ?? '';
+      if (color) {
+        btn.style.borderColor = color;
+        btn.style.color = color;
+        btn.style.background = `${color}22`;
+      }
+      activeFranchiseFilter = btn.dataset.franchise!;
       drawViz(containerId);
     });
   });
@@ -61,9 +98,9 @@ function drawViz(containerId: string) {
   const vizEl = document.getElementById('rel-viz');
   if (!vizEl) return;
 
-  const filteredRels = activeFilter === 'all'
-    ? RELATIONSHIPS
-    : RELATIONSHIPS.filter(r => r.type === activeFilter);
+  const filteredRels = RELATIONSHIPS
+    .filter(r => activeRelFilter === 'all' || r.type === activeRelFilter)
+    .filter(r => activeFranchiseFilter === 'all' || r.franchise === activeFranchiseFilter);
 
   const playerIds = new Set<string>();
   filteredRels.forEach(r => { playerIds.add(r.a); playerIds.add(r.b); });
@@ -83,6 +120,12 @@ function drawViz(containerId: string) {
   const height = 520;
 
   d3.select(vizEl).select('svg').remove();
+  vizEl.innerHTML = '';
+
+  if (nodes.length === 0) {
+    vizEl.innerHTML = `<div class="rel-empty">No drama found for this selection.</div>`;
+    return;
+  }
 
   const svg = d3.select(vizEl).append('svg')
     .attr('width', '100%')
