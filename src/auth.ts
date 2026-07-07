@@ -1,15 +1,12 @@
-import { createClient, type User } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL as string,
-  import.meta.env.VITE_SUPABASE_ANON_KEY as string,
-);
+import { type User } from '@supabase/supabase-js';
+import { supabase } from './lib/supabase';
 
 let currentUser: User | null = null;
 
 export function getCurrentUser(): User | null { return currentUser; }
 
 async function syncUser() {
+  if (!supabase) return;
   const { data } = await supabase.auth.getUser();
   currentUser = data.user ?? null;
   updateNavUserState();
@@ -31,6 +28,12 @@ function updateNavUserState() {
 }
 
 export function initAuth() {
+  if (!supabase) {
+    const signInBtn = document.getElementById('nav-sign-in');
+    if (signInBtn) signInBtn.style.display = 'none';
+    return;
+  }
+
   syncUser();
 
   supabase.auth.onAuthStateChange((_event, session) => {
@@ -45,7 +48,7 @@ export function initAuth() {
     if (e.target === e.currentTarget) closeAuthModal();
   });
   document.getElementById('nav-user-sign-out')?.addEventListener('click', async () => {
-    await supabase.auth.signOut();
+    await supabase!.auth.signOut();
   });
 
   document.getElementById('auth-tab-signin')?.addEventListener('click', () => setAuthTab('signin'));
@@ -90,6 +93,7 @@ function showAuthError(msg: string) {
 }
 
 async function handleAuthSubmit() {
+  if (!supabase) return;
   const email = (document.getElementById('auth-email') as HTMLInputElement).value.trim();
   const password = (document.getElementById('auth-password') as HTMLInputElement).value;
   const mode = (document.getElementById('auth-modal') as HTMLElement).dataset.mode;
