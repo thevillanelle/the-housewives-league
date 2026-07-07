@@ -243,54 +243,113 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 .sc-desc{font-size:11px;color:rgba(240,232,216,.5);margin-top:6px;line-height:1.5}
 
 /* ── FANTASY SECTION ─────────────────────────────────────────────────── */
-.fantasy-hero{
-  background:linear-gradient(135deg,rgba(139,26,74,.15) 0%,rgba(181,66,106,.05) 100%);
-  border:1px solid var(--border2);border-radius:2px;
-  padding:40px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;gap:24px
+.fantasy-stat-bar{
+  display:flex;align-items:center;gap:0;margin-bottom:24px;
+  background:rgba(255,255,255,.02);border:1px solid var(--border)
 }
-.fh-left{}
-.fh-eyebrow{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
-.fh-title{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--text);margin-bottom:8px}
-.fh-sub{font-size:13px;color:rgba(240,232,216,.5);line-height:1.6;max-width:420px}
-.fh-actions{display:flex;flex-direction:column;gap:10px;flex-shrink:0}
-.fh-btn{
-  padding:14px 28px;border-radius:8px;font-size:10px;font-weight:700;
-  letter-spacing:2px;text-transform:uppercase;cursor:pointer;
-  font-family:'Space Mono',monospace;transition:all .2s;border:none;white-space:nowrap
+.fsb-item{flex:1;padding:18px 24px}
+.fsb-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--text);line-height:1}
+.fsb-lbl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.fsb-divider{width:1px;background:var(--border);align-self:stretch}
+.fantasy-command{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:2px}
+.fc-col{background:rgba(255,255,255,.02)}
+.fc-col-header{
+  display:flex;align-items:baseline;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,.02)
 }
-.fh-btn-primary{background:var(--accent);color:#fff}
-.fh-btn-primary:hover{background:var(--accent2)}
-.fh-btn-secondary{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border2)}
-.fh-btn-secondary:hover{color:var(--text);border-color:var(--accent)}
-.fantasy-cols{display:grid;grid-template-columns:2fr 1fr;gap:2px}
-.fantasy-col{}
-.f-section-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding:16px 20px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
-.roster-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px}
-.roster-slot{
-  background:rgba(255,255,255,.02);border:1px dashed rgba(181,66,106,.15);
-  padding:20px;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;text-align:center;gap:8px;min-height:100px;
-  cursor:pointer;transition:all .2s
+.fc-col-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+.fc-col-hint{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;color:rgba(240,232,216,.2);text-transform:uppercase}
+
+/* Roster */
+.roster-grid{display:flex;flex-direction:column;gap:0}
+.roster-slot{display:flex;cursor:default;overflow:hidden}
+.roster-slot.empty{
+  align-items:center;gap:10px;padding:14px 18px;
+  border-bottom:1px solid var(--border);opacity:.3
 }
-.roster-slot:hover{background:rgba(181,66,106,.05);border-color:rgba(181,66,106,.3)}
-.rs-icon{font-size:20px;opacity:.2}
-.rs-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
-.league-panel{background:rgba(255,255,255,.02);border:1px solid var(--border)}
-.league-item{
+.roster-slot.filled{border-bottom:1px solid var(--border);position:relative}
+.rs-stripe{width:3px;flex-shrink:0;background:var(--fc)}
+.rs-content{display:flex;align-items:center;gap:10px;padding:10px 14px;flex:1}
+.rs-avatar{
+  width:36px;height:36px;border-radius:50%;border:2px solid;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:12px;font-weight:700;
+  color:var(--text);background:rgba(255,255,255,.04)
+}
+.rs-info{flex:1;min-width:0}
+.rs-name{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rs-meta{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.rs-value{font-family:'Space Mono',monospace;font-size:10px;color:var(--gold);flex-shrink:0}
+.rs-remove{
+  background:none;border:none;color:rgba(240,232,216,.2);
+  font-size:10px;cursor:pointer;padding:4px 6px;flex-shrink:0;
+  transition:color .15s
+}
+.rs-remove:hover{color:var(--accent)}
+.rs-icon{font-size:16px;opacity:.2;flex-shrink:0}
+.rs-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+
+/* Draft Pool */
+.draft-pool{max-height:700px;overflow-y:auto}
+.draft-pool::-webkit-scrollbar{width:4px}
+.draft-pool::-webkit-scrollbar-thumb{background:var(--border2)}
+.dp-row{
+  display:flex;align-items:center;gap:10px;padding:10px 16px;
+  border-bottom:1px solid var(--border);transition:background .12s
+}
+.dp-row:hover{background:rgba(255,255,255,.03)}
+.dp-avatar{
+  width:32px;height:32px;border-radius:50%;border:2px solid;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:11px;font-weight:700;
+  color:var(--text);background:rgba(255,255,255,.04)
+}
+.dp-info{flex:1;min-width:0}
+.dp-name{font-size:12px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dp-meta{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.dp-value{font-family:'Space Mono',monospace;font-size:10px;color:var(--gold);flex-shrink:0}
+.dp-draft-btn{
+  flex-shrink:0;padding:5px 12px;background:rgba(181,66,106,.12);
+  border:1px solid rgba(181,66,106,.3);border-radius:4px;
+  font-family:'Space Mono',monospace;font-size:8px;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;color:var(--accent);
+  cursor:pointer;transition:all .15s
+}
+.dp-draft-btn:hover:not(.disabled){background:rgba(181,66,106,.25);border-color:var(--accent)}
+.dp-draft-btn.disabled{opacity:.3;cursor:default}
+
+/* Vote Panel */
+.vote-header{padding:16px 18px;border-bottom:1px solid var(--border)}
+.vote-eyebrow{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.vote-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.vote-sub{font-size:10px;color:var(--muted);line-height:1.5}
+.vote-cats{padding:2px 0}
+.vote-cat{padding:12px 18px;border-bottom:1px solid var(--border)}
+.vc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.vc-label{font-size:11px;color:var(--text);font-weight:500}
+.vc-pts{font-family:'Space Mono',monospace;font-size:9px;color:var(--gold);font-weight:700}
+.vc-desc{font-size:10px;color:var(--muted);line-height:1.4;margin-bottom:6px}
+.vc-locked{
+  display:flex;align-items:center;gap:6px;
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;
+  text-transform:uppercase;color:rgba(240,232,216,.2)
+}
+.vc-lock-icon{font-size:10px}
+
+/* Scoring Reference */
+.scoring-ref-rows{padding:4px 0}
+.srr{
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 20px;border-bottom:1px solid var(--border)
+  padding:8px 18px;border-bottom:1px solid var(--border)
 }
-.league-item:last-child{border-bottom:0}
-.li-rank{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--muted);width:24px}
-.li-name{font-size:12px;color:var(--text)}
-.li-pts{font-family:'Space Mono',monospace;font-size:11px;color:var(--gold)}
-.draft-status{
-  background:rgba(212,175,55,.05);border:1px solid rgba(212,175,55,.2);
-  padding:20px;display:flex;align-items:center;justify-content:space-between;gap:16px
-}
-.ds-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold)}
-.ds-value{font-size:13px;color:var(--text);margin-top:4px}
-.scoring-ref{}
+.srr-cat{font-size:11px;color:rgba(240,232,216,.5)}
+.srr-pts{font-family:'Space Mono',monospace;font-size:9px;color:var(--accent);font-weight:700}
+.srr-big{background:rgba(181,66,106,.04)}
+.srr-big .srr-cat{color:var(--accent)}
+
+/* legacy */
+.f-section-label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding:16px 20px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.02)}
 
 /* ── PLAYER CARDS ────────────────────────────────────────────────────── */
 .players-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
@@ -545,46 +604,74 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-famil
 <div class="section-panel" id="section-fantasy">
   <div class="section-inner">
     <div class="section-header">
-      <div class="section-eyebrow">Fantasy League</div>
+      <div class="section-eyebrow">THL Command Center</div>
       <h1 class="section-title">My <em>Franchise</em></h1>
+      <p class="section-sub">Draft Housewives from across the globe, manage your roster, and compete against other franchise managers. 10 roster slots. Community votes drive the points.</p>
     </div>
-    <div class="fantasy-hero">
-      <div class="fh-left">
-        <div class="fh-eyebrow">THL Season 1 · Draft Pending</div>
-        <div class="fh-title">Build Your Dynasty</div>
-        <div class="fh-sub">Draft Housewives from across the globe, manage your roster, and compete against other franchise managers. Your picks, your strategy, your legacy.</div>
+
+    <!-- Stat Bar -->
+    <div class="fantasy-stat-bar">
+      <div class="fsb-item">
+        <div class="fsb-val" id="roster-count">0 / 10 Players Drafted</div>
+        <div class="fsb-lbl">Roster Status</div>
       </div>
-      <div class="fh-actions">
-        <button class="fh-btn fh-btn-primary">Create League</button>
-        <button class="fh-btn fh-btn-secondary">Join Existing League</button>
-        <button class="fh-btn fh-btn-secondary">Solo Fantasy Mode</button>
+      <div class="fsb-divider"></div>
+      <div class="fsb-item">
+        <div class="fsb-val" id="roster-value">0</div>
+        <div class="fsb-lbl">Total Fantasy Value</div>
+      </div>
+      <div class="fsb-divider"></div>
+      <div class="fsb-item">
+        <div class="fsb-val" style="color:var(--muted)">Season 1</div>
+        <div class="fsb-lbl">Current Season</div>
+      </div>
+      <div class="fsb-divider"></div>
+      <div class="fsb-item">
+        <div class="fsb-val" style="color:var(--muted)">Draft Open</div>
+        <div class="fsb-lbl">Draft Status</div>
       </div>
     </div>
-    <div class="fantasy-cols">
-      <div class="fantasy-col">
-        <div class="f-section-label">My Roster — 0 / 10 Players Drafted</div>
+
+    <!-- 3-col command center -->
+    <div class="fantasy-command">
+      <!-- LEFT: My Roster -->
+      <div class="fc-col fc-roster-col">
+        <div class="fc-col-header">
+          <span class="fc-col-label">My Roster</span>
+          <span class="fc-col-hint">10 slots · tap ✕ to drop</span>
+        </div>
         <div class="roster-grid" id="roster-grid"></div>
       </div>
-      <div class="fantasy-col">
-        <div class="draft-status">
-          <div>
-            <div class="ds-label">Draft Status</div>
-            <div class="ds-value">Waiting for league to fill — 0 / 10 managers joined</div>
-          </div>
+
+      <!-- CENTER: Draft Pool -->
+      <div class="fc-col fc-draft-col">
+        <div class="fc-col-header">
+          <span class="fc-col-label">Draft Pool</span>
+          <span class="fc-col-hint">Sorted by fantasy value</span>
         </div>
-        <div class="section-rule" style="margin:2px 0"></div>
-        <div class="f-section-label">League Standings</div>
-        <div class="league-panel" id="league-panel">
-          <div class="league-item" style="opacity:.35">
-            <div class="li-rank">—</div>
-            <div class="li-name">No league started yet</div>
-            <div class="li-pts">0 pts</div>
+        <div class="draft-pool" id="draft-pool"></div>
+      </div>
+
+      <!-- RIGHT: Voting + Scoring -->
+      <div class="fc-col fc-vote-col">
+        <div id="vote-panel"></div>
+        <div class="fc-scoring-ref">
+          <div class="fc-col-header" style="margin-top:20px">
+            <span class="fc-col-label">Scoring Reference</span>
           </div>
-        </div>
-        <div class="section-rule" style="margin:2px 0"></div>
-        <div class="f-section-label">How Scoring Works</div>
-        <div style="padding:16px 20px;font-size:11px;color:rgba(240,232,216,.45);line-height:1.7">
-          Episode MVP earns <strong style="color:var(--accent)">10 pts</strong>. Best Confessional, Best Read, Best Moment, Drama Impact all earn <strong style="color:var(--accent)">5 pts</strong>. Season MVP bonus: <strong style="color:var(--gold)">+25 pts</strong>. Community votes after every episode determine point allocation.
+          <div class="scoring-ref-rows">
+            <div class="srr"><span class="srr-cat">Episode MVP</span><span class="srr-pts">10 pts</span></div>
+            <div class="srr"><span class="srr-cat">Best Confessional</span><span class="srr-pts">5 pts</span></div>
+            <div class="srr"><span class="srr-cat">Best Read</span><span class="srr-pts">5 pts</span></div>
+            <div class="srr"><span class="srr-cat">Best Moment</span><span class="srr-pts">5 pts</span></div>
+            <div class="srr"><span class="srr-cat">Drama Impact</span><span class="srr-pts">5 pts</span></div>
+            <div class="srr"><span class="srr-cat">Confrontation Win</span><span class="srr-pts">5 pts</span></div>
+            <div class="srr"><span class="srr-cat">Confrontation Loss</span><span class="srr-pts">1 pt</span></div>
+            <div class="srr"><span class="srr-cat">Fan Momentum Bonus</span><span class="srr-pts" style="color:var(--gold)">+3 pts</span></div>
+            <div class="srr srr-big"><span class="srr-cat" style="color:var(--accent)">Season MVP</span><span class="srr-pts" style="color:var(--accent)">25 pts</span></div>
+            <div class="srr"><span class="srr-cat" style="color:var(--gold)">Best Season</span><span class="srr-pts" style="color:var(--gold)">15 pts</span></div>
+            <div class="srr"><span class="srr-cat" style="color:var(--gold)">Breakout Performance</span><span class="srr-pts" style="color:var(--gold)">10 pts</span></div>
+          </div>
         </div>
       </div>
     </div>
