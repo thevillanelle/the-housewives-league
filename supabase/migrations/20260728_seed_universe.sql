@@ -46,7 +46,8 @@ VALUES
   ('rhol', 'The Real Housewives of Lagos', 'Lagos', 'RHOL', 'Bravo', 2022, 'active', '#22c55e'),
   ('rhoab', 'The Real Housewives of Abuja', 'Abuja', 'RHOAB', 'Bravo', 2023, 'cancelled', '#4ade80'),
   ('rhonai', 'The Real Housewives of Nairobi', 'Nairobi', 'RHONAI', 'Bravo', 2023, 'active', '#86efac'),
-  ('rhois', 'Wealthy Women (Israel)', 'Tel Aviv', 'RHOIS', 'Bravo', 2011, 'cancelled', '#38bdf8');
+  ('rhois', 'Wealthy Women (Israel)', 'Tel Aviv', 'RHOIS', 'Bravo', 2011, 'cancelled', '#38bdf8')
+ON CONFLICT (slug) DO NOTHING;
 
 -- ── HOUSEWIVES ───────────────────────────────────────────────────────────
 INSERT INTO housewives (slug, name, debut_year, fantasy_value)
@@ -235,7 +236,8 @@ VALUES
   ('krissy-marsh', 'Krissy Marsh', 2017, 480),
   ('nicole-oneil', 'Nicole O''Neil', 2017, 460),
   ('matty-samaei', 'Matty Samaei', 2017, 460),
-  ('victoria-rees', 'Victoria Rees', 2017, 420);
+  ('victoria-rees', 'Victoria Rees', 2017, 420)
+ON CONFLICT (slug) DO NOTHING;
 
 -- ── FRANCHISE MEMBERSHIPS ───────────────────────────────────────────────
 INSERT INTO franchise_memberships (housewife_id, franchise_id, role)
