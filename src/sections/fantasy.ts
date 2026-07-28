@@ -23,7 +23,7 @@ function getFranchiseColor(id: string) { return getFranchise(id)?.color ?? '#7a5
 function getFranchiseAbbr(id: string) { return getFranchise(id)?.abbr ?? id.toUpperCase(); }
 function getInitials(name: string) { return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase(); }
 
-async function loadState() {
+export async function loadState() {
   const user = getCurrentUser();
   if (!user) {
     myTeam = null;

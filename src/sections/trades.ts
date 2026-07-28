@@ -1,6 +1,6 @@
 import { HOUSEWIVES, TIER_COLORS, TIER_LABELS } from '../data/housewives';
 import { FRANCHISES } from '../data/franchises';
-import { myTeam, getMyRosterSlugs } from './fantasy';
+import { myTeam, getMyRosterSlugs, loadState as refreshFantasyState } from './fantasy';
 import { getCurrentUser, openAuthModal } from '../auth';
 import {
   fetchOpponentTeams, proposeTrade, fetchPendingTrades, respondToTrade, fetchTeamTradeHistory,
@@ -275,6 +275,9 @@ function renderShell() {
   panel.querySelectorAll<HTMLElement>('.trade-accept-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       await respondToTrade(btn.dataset.id!, true);
+      // Refresh fantasy.ts's roster state first so getMyRosterSlugs() below
+      // reflects the swap by the time loadTradeData() re-renders this panel.
+      await refreshFantasyState();
       await loadTradeData();
       document.dispatchEvent(new CustomEvent('thl:trade-complete'));
     });

@@ -122,7 +122,11 @@ async function handleAuthSubmit() {
   }
 
   if (mode === 'signup') {
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: window.location.origin },
+    });
     if (error) showAuthError(error.message);
     else showAuthError('Check your email to confirm your account.');
   } else {
