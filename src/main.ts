@@ -11,6 +11,7 @@ import { initTimeline } from './sections/timeline';
 import { initAnalytics } from './sections/analytics';
 import { initPlayerModal } from './sections/player-modal';
 import { initRelationships } from './sections/relationships';
+import { initNews } from './sections/news';
 import { initAuth } from './auth';
 import { FRANCHISES } from './data/franchises';
 
@@ -71,6 +72,9 @@ async function boot() {
     if (section === 'players' && !relationshipsDone) {
       initRelationships('rel-viz-container');
       relationshipsDone = true;
+    }
+    if (section === 'news') {
+      initNews();
     }
   });
 
