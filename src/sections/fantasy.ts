@@ -2,61 +2,95 @@ import * as d3 from 'd3';
 import { HOUSEWIVES, TIER_COLORS, TIER_LABELS } from '../data/housewives';
 import { FRANCHISES } from '../data/franchises';
 import { renderTrades } from './trades';
+import { getCurrentUser, onAuthChange, openAuthModal } from '../auth';
+import {
+  getMyTeam, createLeague, joinLeague, fetchRoster, draftHousewife, dropHousewife,
+  fetchStandings, submitVote, fetchSeasonLeaderboard, fetchEpisodeHistory,
+  type MyTeam, type StandingsRow,
+} from '../lib/game';
 
-// ── Episode log (localStorage persistence) ─────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────
 
-const LOG_KEY = 'thl_ep_log';
+export let myTeam: MyTeam | null = null;
+export let rosterSlugs: string[] = [];
+let standings: StandingsRow[] = [];
+let loading = false;
 
-interface VoteSession {
-  ep: number;
-  tally: Record<string, number>;
-  submittedAt: string;
-}
-
-function getLog(): VoteSession[] {
-  try { return JSON.parse(localStorage.getItem(LOG_KEY) ?? '[]'); }
-  catch { return []; }
-}
-
-function saveLog(sessions: VoteSession[]) {
-  try { localStorage.setItem(LOG_KEY, JSON.stringify(sessions)); } catch {}
-}
-
-function getNextEp(): number {
-  const log = getLog();
-  return log.length + 1;
-}
-
-const MAX_ROSTER = 10;
-export const roster: Set<string> = new Set();
-
-// ── Helpers ────────────────────────────────────────────────────────────────
+export function getMyRosterSlugs(): string[] { return rosterSlugs; }
 
 function getFranchise(id: string) { return FRANCHISES.find(f => f.id === id); }
 function getFranchiseColor(id: string) { return getFranchise(id)?.color ?? '#7a5c68'; }
 function getFranchiseAbbr(id: string) { return getFranchise(id)?.abbr ?? id.toUpperCase(); }
 function getInitials(name: string) { return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase(); }
 
+async function loadState() {
+  const user = getCurrentUser();
+  if (!user) {
+    myTeam = null;
+    rosterSlugs = [];
+    standings = [];
+    refresh();
+    return;
+  }
+
+  loading = true;
+  refresh();
+  try {
+    myTeam = await getMyTeam();
+    if (myTeam) {
+      [rosterSlugs, standings] = await Promise.all([
+        fetchRoster(myTeam.teamId),
+        fetchStandings(myTeam.leagueId),
+      ]);
+    } else {
+      rosterSlugs = [];
+      standings = [];
+    }
+  } finally {
+    loading = false;
+    refresh();
+  }
+}
+
+function lockedPanel(action: string): string {
+  return `
+    <div class="league-setup">
+      <div class="ls-prompt">Sign in to ${action}</div>
+      <div class="ls-btns">
+        <button class="ls-btn" id="lock-sign-in">Sign In</button>
+      </div>
+    </div>`;
+}
+
+function wireLockButtons(root: HTMLElement) {
+  root.querySelectorAll<HTMLElement>('#lock-sign-in').forEach(btn => {
+    btn.addEventListener('click', openAuthModal);
+  });
+}
+
+// ── Roster ─────────────────────────────────────────────────────────────────
+
 function updateRosterHeader() {
   const el = document.getElementById('roster-count');
-  if (el) el.textContent = `${roster.size} / ${MAX_ROSTER} Players Drafted`;
+  if (el) el.textContent = myTeam ? `${rosterSlugs.length} / ${myTeam.rosterSize} Players Drafted` : '0 / 10 Players Drafted';
 }
 
 function updateRosterValue() {
   const el = document.getElementById('roster-value');
   if (!el) return;
-  const total = HOUSEWIVES.filter(h => roster.has(h.id)).reduce((s, h) => s + h.fantasyValue, 0);
+  const total = HOUSEWIVES.filter(h => rosterSlugs.includes(h.id)).reduce((s, h) => s + h.fantasyValue, 0);
   el.textContent = total.toLocaleString();
 }
-
-// ── Roster ─────────────────────────────────────────────────────────────────
 
 function renderRosterGrid() {
   const grid = document.getElementById('roster-grid');
   if (!grid) return;
 
-  const drafted = HOUSEWIVES.filter(h => roster.has(h.id));
-  const empty = MAX_ROSTER - drafted.length;
+  if (!getCurrentUser()) { grid.innerHTML = lockedPanel('draft players'); wireLockButtons(grid); return; }
+  if (!myTeam) { grid.innerHTML = '<div class="elog-empty-sub">Set up your league to start drafting.</div>'; return; }
+
+  const drafted = HOUSEWIVES.filter(h => rosterSlugs.includes(h.id));
+  const empty = myTeam.rosterSize - drafted.length;
 
   const draftedHTML = drafted.map(h => {
     const fc = getFranchiseColor(h.primaryFranchise);
@@ -77,7 +111,7 @@ function renderRosterGrid() {
       </div>`;
   }).join('');
 
-  const emptyHTML = Array.from({ length: empty }, (_, i) => `
+  const emptyHTML = Array.from({ length: Math.max(empty, 0) }, (_, i) => `
     <div class="roster-slot empty">
       <div class="rs-icon">◇</div>
       <div class="rs-label">Open Slot ${drafted.length + i + 1}</div>
@@ -85,9 +119,11 @@ function renderRosterGrid() {
 
   grid.innerHTML = draftedHTML + emptyHTML;
   grid.querySelectorAll<HTMLElement>('.rs-remove').forEach(btn => {
-    btn.addEventListener('click', e => {
+    btn.addEventListener('click', async e => {
       e.stopPropagation();
-      roster.delete(btn.dataset.id!);
+      if (!myTeam) return;
+      await dropHousewife(myTeam.teamId, btn.dataset.id!);
+      rosterSlugs = rosterSlugs.filter(s => s !== btn.dataset.id);
       refresh();
     });
   });
@@ -99,6 +135,7 @@ function refresh() {
   updateRosterHeader();
   updateRosterValue();
   renderVoting();
+  renderLeaguePanel();
 }
 
 // ── Draft Pool ─────────────────────────────────────────────────────────────
@@ -107,14 +144,17 @@ function renderDraftPool() {
   const pool = document.getElementById('draft-pool');
   if (!pool) return;
 
-  const available = HOUSEWIVES.filter(h => !roster.has(h.id))
+  if (!getCurrentUser()) { pool.innerHTML = lockedPanel('draft players'); wireLockButtons(pool); return; }
+  if (!myTeam) { pool.innerHTML = '<div class="elog-empty-sub">Set up your league to see the draft pool.</div>'; return; }
+
+  const available = HOUSEWIVES.filter(h => !rosterSlugs.includes(h.id))
     .sort((a, b) => b.fantasyValue - a.fantasyValue);
 
   pool.innerHTML = available.map(h => {
     const fc = getFranchiseColor(h.primaryFranchise);
     const abbr = getFranchiseAbbr(h.primaryFranchise);
     const tc = TIER_COLORS[h.tier];
-    const canDraft = roster.size < MAX_ROSTER;
+    const canDraft = rosterSlugs.length < myTeam!.rosterSize;
     return `
       <div class="dp-row" data-id="${h.id}">
         <div class="dp-avatar" style="border-color:${fc}">${getInitials(h.name)}</div>
@@ -130,10 +170,12 @@ function renderDraftPool() {
   }).join('');
 
   pool.querySelectorAll<HTMLElement>('.dp-draft-btn:not(.disabled)').forEach(btn => {
-    btn.addEventListener('click', e => {
+    btn.addEventListener('click', async e => {
       e.stopPropagation();
-      if (roster.size >= MAX_ROSTER) return;
-      roster.add(btn.dataset.id!);
+      if (!myTeam || rosterSlugs.length >= myTeam.rosterSize) return;
+      const slug = btn.dataset.id!;
+      await draftHousewife(myTeam.teamId, slug);
+      rosterSlugs = [...rosterSlugs, slug];
       refresh();
     });
   });
@@ -151,13 +193,13 @@ const VOTE_CATS = [
 ];
 
 const votes: Record<string, string> = {};
-let votesSubmitted = false;
+let submitting = false;
 
 function buildPlayerOptions(): string {
-  if (roster.size === 0) {
+  if (rosterSlugs.length === 0) {
     return '<option value="">Draft players first to vote</option>';
   }
-  const drafted = HOUSEWIVES.filter(h => roster.has(h.id));
+  const drafted = HOUSEWIVES.filter(h => rosterSlugs.includes(h.id));
   return '<option value="">— Select a player —</option>' +
     drafted.map(h => `<option value="${h.id}">${h.name} (${getFranchiseAbbr(h.primaryFranchise)})</option>`).join('');
 }
@@ -166,62 +208,16 @@ function renderVoting() {
   const panel = document.getElementById('vote-panel');
   if (!panel) return;
 
-  if (votesSubmitted) {
-    const total = Object.values(votes).reduce((sum, pid) => {
-      return sum + (VOTE_CATS.find(c => Object.keys(votes).some(k => votes[k] === pid)) ? 0 : 0);
-    }, 0);
+  if (!getCurrentUser()) { panel.innerHTML = lockedPanel('vote'); wireLockButtons(panel); return; }
+  if (!myTeam) { panel.innerHTML = '<div class="elog-empty-sub">Set up your league to start voting.</div>'; return; }
 
-    // tally points per player
-    const tally: Record<string, number> = {};
-    VOTE_CATS.forEach(cat => {
-      const pid = votes[cat.key];
-      if (pid) tally[pid] = (tally[pid] ?? 0) + cat.pts;
-    });
-
-    const resultsHtml = Object.entries(tally)
-      .sort(([, a], [, b]) => b - a)
-      .map(([pid, pts]) => {
-        const h = HOUSEWIVES.find(hw => hw.id === pid);
-        if (!h) return '';
-        const tc = TIER_COLORS[h.tier];
-        return `
-          <div class="vote-result-row">
-            <span class="vr-name">${h.name}</span>
-            <span class="vr-pts" style="color:${tc}">+${pts} pts</span>
-          </div>`;
-      }).join('');
-
-    panel.innerHTML = `
-      <div class="vote-header">
-        <div class="vote-eyebrow">Episode Results</div>
-        <div class="vote-title">Your Votes Submitted</div>
-        <div class="vote-sub">Points will apply at the end of the episode window.</div>
-      </div>
-      <div class="vote-results">
-        <div class="vr-label">Fantasy Points This Episode</div>
-        ${resultsHtml || '<div style="padding:16px 18px;color:var(--muted);font-size:11px">No roster players received votes.</div>'}
-      </div>
-      <div style="padding:16px 18px;border-top:1px solid var(--border)">
-        <button class="pm-draft-btn" id="vote-reset-btn" style="width:100%">Clear & Vote Again</button>
-      </div>`;
-
-    document.getElementById('vote-reset-btn')?.addEventListener('click', () => {
-      votesSubmitted = false;
-      Object.keys(votes).forEach(k => delete votes[k]);
-      renderVoting();
-    });
-    return;
-  }
-
-
-
-  const hasRoster = roster.size > 0;
+  const hasRoster = rosterSlugs.length > 0;
   panel.innerHTML = `
     <div class="vote-header">
       <div class="vote-eyebrow">Community Voting</div>
       <div class="vote-title">Episode Voting</div>
       <div class="vote-sub">${hasRoster
-        ? 'Cast your votes. Points apply to your drafted players.'
+        ? 'Cast your votes. Points apply to your drafted players’ most recently aired episode.'
         : 'Draft players to your roster first, then vote after each episode.'
       }</div>
     </div>
@@ -243,7 +239,8 @@ function renderVoting() {
     </div>
     ${hasRoster ? `
       <div style="padding:16px 18px;border-top:1px solid var(--border)">
-        <button class="vote-submit-btn" id="vote-submit">Submit Votes</button>
+        <button class="vote-submit-btn" id="vote-submit" ${submitting ? 'disabled' : ''}>${submitting ? 'Submitting…' : 'Submit Votes'}</button>
+        <div id="vote-error" style="display:none;color:#c0546e;font-size:11px;margin-top:8px"></div>
       </div>` : ''}`;
 
   panel.querySelectorAll<HTMLSelectElement>('.vote-select').forEach(sel => {
@@ -253,47 +250,70 @@ function renderVoting() {
     });
   });
 
-  document.getElementById('vote-submit')?.addEventListener('click', () => {
-    votesSubmitted = true;
-    // Tally and persist to episode log
-    const tally: Record<string, number> = {};
-    VOTE_CATS.forEach(cat => {
-      const pid = votes[cat.key];
-      if (pid) tally[pid] = (tally[pid] ?? 0) + cat.pts;
-    });
-    const log = getLog();
-    log.push({ ep: getNextEp(), tally, submittedAt: new Date().toISOString() });
-    saveLog(log);
+  document.getElementById('vote-submit')?.addEventListener('click', async () => {
+    const errorEl = document.getElementById('vote-error');
+    const picked = VOTE_CATS.filter(c => votes[c.key]);
+    if (picked.length === 0) return;
+
+    submitting = true;
     renderVoting();
+    try {
+      for (const cat of picked) {
+        const slug = votes[cat.key];
+        const h = HOUSEWIVES.find(hw => hw.id === slug);
+        if (!h) continue;
+        await submitVote({ category: cat.key, points: cat.pts, housewifeSlug: slug, franchiseSlug: h.primaryFranchise });
+      }
+      Object.keys(votes).forEach(k => delete votes[k]);
+      if (myTeam) {
+        renderEpisodeLog();
+      }
+    } catch (err) {
+      if (errorEl) {
+        errorEl.style.display = 'block';
+        errorEl.textContent = err instanceof Error ? err.message : 'Something went wrong submitting your votes.';
+      }
+    } finally {
+      submitting = false;
+      renderVoting();
+    }
   });
 }
 
 // ── League Creation ─────────────────────────────────────────────────────────
 
-let leagueName = '';
-let leagueMode: 'solo' | 'create' | 'join' | null = null;
+let leagueMode: 'create' | 'join' | null = null;
+let leagueBusy = false;
+let leagueError = '';
 
 function renderLeaguePanel() {
   const panel = document.getElementById('league-panel');
   if (!panel) return;
 
-  if (leagueMode === 'solo' || leagueName) {
-    const displayName = leagueName || 'Solo Fantasy Mode';
+  if (!getCurrentUser()) { panel.innerHTML = lockedPanel('create or join a league'); wireLockButtons(panel); return; }
+
+  if (loading) {
+    panel.innerHTML = '<div class="elog-empty-sub">Loading your league…</div>';
+    return;
+  }
+
+  if (myTeam) {
+    const standingsHTML = standings.length
+      ? standings.map((row, i) => `
+          <div class="league-item">
+            <div class="li-rank">${i + 1}</div>
+            <div class="li-name" ${row.teamId === myTeam!.teamId ? "style='font-style:italic'" : ''}>${row.name}</div>
+            <div class="li-pts">${row.points} pts</div>
+          </div>`).join('')
+      : '<div class="league-item" style="opacity:.5"><div class="li-name">Waiting for scores…</div></div>';
+
     panel.innerHTML = `
       <div class="league-active">
         <div class="la-eyebrow">Your League</div>
-        <div class="la-name">${displayName}</div>
+        <div class="la-name">${myTeam.leagueName}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">Invite code: <strong>${myTeam.leagueSlug}</strong> (max ${myTeam.maxTeams} teams)</div>
         <div class="la-standings-label">Standings</div>
-        <div class="league-item">
-          <div class="li-rank">1</div>
-          <div class="li-name" style="font-style:italic">You</div>
-          <div class="li-pts">${calcRosterPts()} pts</div>
-        </div>
-        <div class="league-item" style="opacity:.25">
-          <div class="li-rank">2</div>
-          <div class="li-name">Waiting for players…</div>
-          <div class="li-pts">0 pts</div>
-        </div>
+        ${standingsHTML}
       </div>`;
     return;
   }
@@ -306,60 +326,102 @@ function renderLeaguePanel() {
         <button class="ls-btn ls-btn-sec" id="ls-join">Join League</button>
         <button class="ls-btn ls-btn-sec" id="ls-solo">Solo Mode</button>
       </div>
-      <div id="ls-form" style="display:none;margin-top:16px">
-        <input class="ls-input" id="ls-name-input" type="text" placeholder="League name…" maxlength="40">
-        <div class="ls-size-row">
-          <span style="font-size:10px;color:var(--muted)">Size:</span>
-          <button class="ls-size-btn active" data-size="4">4</button>
-          <button class="ls-size-btn" data-size="6">6</button>
-          <button class="ls-size-btn" data-size="8">8</button>
-          <button class="ls-size-btn" data-size="10">10</button>
-        </div>
-        <button class="ls-submit-btn" id="ls-submit">Launch League</button>
+      <div id="ls-form" style="display:${leagueMode ? 'block' : 'none'};margin-top:16px">
+        <input class="ls-input" id="ls-name-input" type="text" placeholder="${leagueMode === 'join' ? 'League invite code…' : 'League name…'}" maxlength="40">
+        <input class="ls-input" id="ls-team-input" type="text" placeholder="Your team name…" maxlength="40" style="margin-top:8px">
+        ${leagueMode === 'create' ? `
+          <div class="ls-size-row">
+            <span style="font-size:10px;color:var(--muted)">Size:</span>
+            <button class="ls-size-btn active" data-size="4">4</button>
+            <button class="ls-size-btn" data-size="6">6</button>
+            <button class="ls-size-btn" data-size="8">8</button>
+            <button class="ls-size-btn" data-size="10">10</button>
+          </div>` : ''}
+        <button class="ls-submit-btn" id="ls-submit" ${leagueBusy ? 'disabled' : ''}>${leagueBusy ? 'Please wait…' : (leagueMode === 'join' ? 'Join League' : 'Launch League')}</button>
+        ${leagueError ? `<div style="color:#c0546e;font-size:11px;margin-top:8px">${leagueError}</div>` : ''}
       </div>
     </div>`;
 
-  document.getElementById('ls-create')?.addEventListener('click', () => {
-    document.getElementById('ls-form')!.style.display = 'block';
-    (document.getElementById('ls-create') as HTMLButtonElement).style.display = 'none';
-  });
-  document.getElementById('ls-solo')?.addEventListener('click', () => {
-    leagueMode = 'solo';
+  document.getElementById('ls-create')?.addEventListener('click', () => { leagueMode = 'create'; leagueError = ''; renderLeaguePanel(); });
+  document.getElementById('ls-join')?.addEventListener('click', () => { leagueMode = 'join'; leagueError = ''; renderLeaguePanel(); });
+  document.getElementById('ls-solo')?.addEventListener('click', async () => {
+    leagueBusy = true;
     renderLeaguePanel();
-  });
-  document.getElementById('ls-join')?.addEventListener('click', () => {
-    document.getElementById('ls-form')!.style.display = 'block';
-    (document.getElementById('ls-create') as HTMLButtonElement).style.display = 'none';
-  });
-  document.getElementById('ls-submit')?.addEventListener('click', () => {
-    const input = document.getElementById('ls-name-input') as HTMLInputElement;
-    leagueName = input.value.trim() || 'My THL League';
-    leagueMode = 'create';
-    renderLeaguePanel();
+    try {
+      myTeam = await createLeague('Solo Fantasy Mode', 'You', 1);
+      await loadState();
+    } catch (err) {
+      leagueError = err instanceof Error ? err.message : 'Could not start solo mode.';
+    } finally {
+      leagueBusy = false;
+      renderLeaguePanel();
+    }
   });
 
+  let selectedSize = 4;
   panel.querySelectorAll<HTMLElement>('.ls-size-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       panel.querySelectorAll('.ls-size-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      selectedSize = Number(btn.dataset.size);
     });
   });
-}
 
-function calcRosterPts(): number {
-  return HOUSEWIVES.filter(h => roster.has(h.id))
-    .reduce((s, h) => s + Math.floor(h.fantasyValue / 100), 0);
+  document.getElementById('ls-submit')?.addEventListener('click', async () => {
+    const nameInput = document.getElementById('ls-name-input') as HTMLInputElement;
+    const teamInput = document.getElementById('ls-team-input') as HTMLInputElement;
+    const name = nameInput.value.trim();
+    const teamName = teamInput.value.trim() || 'My Team';
+    if (!name) {
+      leagueError = leagueMode === 'join' ? 'Enter an invite code.' : 'Enter a league name.';
+      renderLeaguePanel();
+      return;
+    }
+
+    leagueBusy = true;
+    leagueError = '';
+    renderLeaguePanel();
+    try {
+      if (leagueMode === 'join') {
+        await joinLeague(name, teamName);
+      } else {
+        await createLeague(name, teamName, selectedSize);
+      }
+      leagueMode = null;
+      await loadState();
+    } catch (err) {
+      leagueError = err instanceof Error ? err.message : 'Something went wrong.';
+    } finally {
+      leagueBusy = false;
+      renderLeaguePanel();
+    }
+  });
 }
 
 // ── Episode Log ────────────────────────────────────────────────────────────
 
-export function renderEpisodeLog() {
+export async function renderEpisodeLog() {
   const panel = document.getElementById('episode-log-panel');
   if (!panel) return;
 
-  const log = getLog();
+  if (!getCurrentUser()) { panel.innerHTML = lockedPanel('see your episode log'); wireLockButtons(panel); return; }
+  if (!myTeam) {
+    panel.innerHTML = `
+      <div class="elog-empty">
+        <div class="elog-empty-icon">◇</div>
+        <div class="elog-empty-msg">No league yet</div>
+        <div class="elog-empty-sub">Set up a league and draft a roster to begin tracking fantasy points</div>
+      </div>`;
+    return;
+  }
 
-  if (log.length === 0) {
+  panel.innerHTML = '<div class="elog-empty-sub">Loading…</div>';
+  const [leaderboardRows, history] = await Promise.all([
+    fetchSeasonLeaderboard(myTeam.teamId),
+    fetchEpisodeHistory(myTeam.teamId),
+  ]);
+
+  if (leaderboardRows.length === 0 && history.length === 0) {
     panel.innerHTML = `
       <div class="elog-empty">
         <div class="elog-empty-icon">◇</div>
@@ -369,17 +431,8 @@ export function renderEpisodeLog() {
     return;
   }
 
-  const allTimeTotals: Record<string, number> = {};
-  log.forEach(session => {
-    Object.entries(session.tally).forEach(([pid, pts]) => {
-      allTimeTotals[pid] = (allTimeTotals[pid] ?? 0) + pts;
-    });
-  });
-
-  const sorted = Object.entries(allTimeTotals).sort(([, a], [, b]) => b - a);
-
-  const leaderboard = sorted.slice(0, 10).map(([pid, pts], i) => {
-    const h = HOUSEWIVES.find(hw => hw.id === pid);
+  const leaderboard = leaderboardRows.map((row, i) => {
+    const h = HOUSEWIVES.find(hw => hw.id === row.slug);
     if (!h) return '';
     const tc = TIER_COLORS[h.tier];
     const fc = getFranchiseColor(h.primaryFranchise);
@@ -388,39 +441,30 @@ export function renderEpisodeLog() {
         <div class="elr-rank">${i + 1}</div>
         <div class="elr-avatar" style="border-color:${fc}">${getInitials(h.name)}</div>
         <div class="elr-name">${h.name}</div>
-        <div class="elr-pts" style="color:${tc}">+${pts} pts</div>
+        <div class="elr-pts" style="color:${tc}">+${row.points} pts</div>
       </div>`;
   }).join('');
 
-  const sessionHistory = [...log].reverse().map((s, i) => {
-    const epNum = log.length - i;
-    const topPids = Object.entries(s.tally).sort(([, a], [, b]) => b - a).slice(0, 3);
-    const mvp = topPids[0] ? HOUSEWIVES.find(h => h.id === topPids[0][0]) : null;
-    return `
+  const sessionHistory = history.map(session => `
       <div class="elog-session">
         <div class="els-header">
-          <span class="els-ep">Episode ${epNum}</span>
-          <span class="els-date">${new Date(s.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+          <span class="els-ep">Episode ${session.episodeNumber}</span>
         </div>
-        ${topPids.map(([pid, pts]) => {
-          const h = HOUSEWIVES.find(hw => hw.id === pid);
+        ${session.entries.map(entry => {
+          const h = HOUSEWIVES.find(hw => hw.id === entry.slug);
           if (!h) return '';
           const tc = TIER_COLORS[h.tier];
-          return `<div class="els-row"><span class="els-name">${h.name}</span><span style="color:${tc}">+${pts} pts</span></div>`;
+          return `<div class="els-row"><span class="els-name">${h.name}</span><span style="color:${tc}">+${entry.points} pts</span></div>`;
         }).join('')}
-        ${topPids.length === 0 ? '<div class="els-row" style="color:var(--muted)">No roster players voted</div>' : ''}
-      </div>`;
-  }).join('');
+      </div>`).join('');
 
   panel.innerHTML = `
     <div class="elog-layout">
       <div class="elog-col">
         <div class="elog-col-header">
           <span class="elog-col-label">Season Leaderboard</span>
-          <span class="elog-col-hint">${log.length} episode${log.length !== 1 ? 's' : ''} tracked</span>
         </div>
         <div class="elog-leaderboard">${leaderboard || '<div style="padding:16px;color:var(--muted);font-size:11px">No roster players scored yet</div>'}</div>
-        <button class="elog-clear-btn" id="elog-clear">Clear All Episode Data</button>
       </div>
       <div class="elog-col">
         <div class="elog-col-header">
@@ -429,15 +473,6 @@ export function renderEpisodeLog() {
         <div class="elog-sessions">${sessionHistory}</div>
       </div>
     </div>`;
-
-  document.getElementById('elog-clear')?.addEventListener('click', () => {
-    if (confirm('Clear all episode voting history?')) {
-      saveLog([]);
-      votesSubmitted = false;
-      Object.keys(votes).forEach(k => delete votes[k]);
-      renderEpisodeLog();
-    }
-  });
 }
 
 // ── Tab Manager ─────────────────────────────────────────────────────────────
@@ -460,13 +495,12 @@ function initTabs() {
 
       if (tab === 'trades') renderTrades();
       if (tab === 'log') renderEpisodeLog();
-      if (tab === 'command') { renderRosterGrid(); renderDraftPool(); updateRosterHeader(); updateRosterValue(); }
+      if (tab === 'command') refresh();
     });
   });
 
-  // Listen for trade completions from trades module
   document.addEventListener('thl:trade-complete', () => {
-    refresh();
+    loadState();
   });
 }
 
@@ -477,7 +511,7 @@ function renderAnalyticsChart() {
   if (!el || el.dataset.init) return;
   el.dataset.init = '1';
 
-  const rosterList = HOUSEWIVES.filter(h => roster.has(h.id))
+  const rosterList = HOUSEWIVES.filter(h => rosterSlugs.includes(h.id))
     .sort((a, b) => b.fantasyValue - a.fantasyValue);
 
   if (rosterList.length === 0) {
@@ -540,10 +574,9 @@ function renderAnalyticsChart() {
 
 export function initFantasy() {
   initTabs();
-  renderRosterGrid();
-  renderDraftPool();
-  renderVoting();
-  renderLeaguePanel();
+  refresh();
+  onAuthChange(() => { loadState(); });
+  loadState();
 
   document.addEventListener('thl:navigate', (e: Event) => {
     if ((e as CustomEvent).detail === 'fantasy') {
