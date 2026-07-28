@@ -12,8 +12,8 @@ const NEWS_FRANCHISE_KEYWORDS: Record<string, string[]> = {
   rhom:  ['miami', 'adriana', 'larsa', 'alexia', 'lisa hochstein', 'rhom'],
   rhodu: ['dubai', 'caroline stanbury', 'lesa milan', 'rhodu'],
   rhoj:  ['johannesburg', "jo'burg", 'rhoj'],
-  rholag:['lagos', 'rholag'],
-  rhome: ['melbourne', 'gina liano', 'janet roach', 'gamble', 'rhome'],
+  rhol:  ['lagos', 'rhol'],
+  'rhom-au': ['melbourne', 'gina liano', 'janet roach', 'gamble', 'rhom-au'],
 };
 
 let currentFilter = 'all';

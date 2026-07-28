@@ -180,7 +180,7 @@ export const SEASONS: FranchiseSeasons[] = [
     ],
   },
   {
-    franchiseId: 'rhome',
+    franchiseId: 'rhom-au',
     currentSeason: 4,
     seasons: [
       { season: 1, year: 2014, episodes: 14, status: 'aired', storyline: 'Gina Liano, Janet Roach, Lydia Schiavello, Andrea Moss, Chyka Keebaugh debut.' },
@@ -190,7 +190,7 @@ export const SEASONS: FranchiseSeasons[] = [
     ],
   },
   {
-    franchiseId: 'rhoch',
+    franchiseId: 'rwcr',
     currentSeason: 12,
     seasons: [
       { season: 1, year: 2015, episodes: 10, status: 'aired', storyline: 'Dawn Ward, Leanne Brown, Lauren Simon, Ampika Pickston, Magali Gorre debut.' },
