@@ -2,14 +2,24 @@ import { type User } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
 
 let currentUser: User | null = null;
+const authChangeListeners: Array<(user: User | null) => void> = [];
 
 export function getCurrentUser(): User | null { return currentUser; }
+
+export function onAuthChange(cb: (user: User | null) => void) {
+  authChangeListeners.push(cb);
+}
+
+function notifyAuthChange() {
+  authChangeListeners.forEach(cb => cb(currentUser));
+}
 
 async function syncUser() {
   if (!supabase) return;
   const { data } = await supabase.auth.getUser();
   currentUser = data.user ?? null;
   updateNavUserState();
+  notifyAuthChange();
 }
 
 function updateNavUserState() {
@@ -40,6 +50,7 @@ export function initAuth() {
     currentUser = session?.user ?? null;
     updateNavUserState();
     closeAuthModal();
+    notifyAuthChange();
   });
 
   document.getElementById('nav-sign-in')?.addEventListener('click', openAuthModal);
@@ -71,7 +82,7 @@ function setAuthTab(tab: 'signin' | 'signup') {
   (document.getElementById('auth-modal') as HTMLElement).dataset.mode = tab;
 }
 
-function openAuthModal() {
+export function openAuthModal() {
   document.getElementById('auth-modal-overlay')?.classList.add('open');
   setAuthTab('signin');
   (document.getElementById('auth-email') as HTMLInputElement).value = '';

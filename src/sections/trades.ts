@@ -1,37 +1,23 @@
 import { HOUSEWIVES, TIER_COLORS, TIER_LABELS } from '../data/housewives';
 import { FRANCHISES } from '../data/franchises';
-import { roster } from './fantasy';
+import { myTeam, getMyRosterSlugs } from './fantasy';
+import { getCurrentUser, openAuthModal } from '../auth';
+import {
+  fetchOpponentTeams, proposeTrade, fetchPendingTrades, respondToTrade, fetchTeamTradeHistory,
+  type OpponentTeam, type PendingTrade, type TradeHistoryEntry,
+} from '../lib/game';
 
-// ── Simulated opponent teams ───────────────────────────────────────────────
-
-interface OpponentTeam {
-  id: string;
-  name: string;
-  color: string;
-  roster: string[];
-}
-
-interface TradeOffer {
-  id: string;
-  fromTeam: string;
-  myOffer: string;
-  theirOffer: string;
-  status: 'pending' | 'accepted' | 'rejected';
-  submittedAt: string;
-}
-
-const TEAM_NAMES = [
-  'Potomac Royals', 'Atlanta Peach Cartel', 'Salt Lake Saints',
-  'NYC Empire', 'BH Diamonds', 'OC Legends',
-];
-
-const TEAM_COLORS = ['#4a7fc1','#5c9e6e','#c9a84c','#b5426a','#9c6fc1','#d4813a'];
+// ── State ────────────────────────────────────────────────────────────────
 
 let opponents: OpponentTeam[] = [];
+let pendingTrades: PendingTrade[] = [];
+let tradeHistory: TradeHistoryEntry[] = [];
 let selectedOpponent: string | null = null;
-let pendingTrades: TradeOffer[] = [];
-let myOfferPick: string = '';
-let theirOfferPick: string = '';
+let myOfferPick = '';
+let theirOfferPick = '';
+let loadingTrades = false;
+let proposing = false;
+let tradeError = '';
 
 function getFranchiseAbbr(id: string) {
   return FRANCHISES.find(f => f.id === id)?.abbr ?? id.toUpperCase();
@@ -45,35 +31,18 @@ function getInitials(name: string) {
   return name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
 }
 
-function buildOpponents() {
-  if (opponents.length > 0) return;
-
-  const allIds = HOUSEWIVES.map(h => h.id);
-  const userRoster = Array.from(roster);
-
-  const shuffled = [...allIds].sort(() => Math.random() - 0.5);
-  const pool = shuffled.filter(id => !userRoster.includes(id));
-
-  opponents = TEAM_NAMES.slice(0, 3).map((name, i) => ({
-    id: `team-${i}`,
-    name,
-    color: TEAM_COLORS[i],
-    roster: pool.slice(i * 8, i * 8 + 8),
-  }));
-}
-
 function getOpponent(id: string): OpponentTeam | undefined {
-  return opponents.find(o => o.id === id);
+  return opponents.find(o => o.teamId === id);
 }
 
-function playerCard(hId: string, selectable: boolean, selectedVal: string, onSelect: (id: string) => void): string {
-  const h = HOUSEWIVES.find(hw => hw.id === hId);
+function playerCard(slug: string, selectedVal: string): string {
+  const h = HOUSEWIVES.find(hw => hw.id === slug);
   if (!h) return '';
   const fc = getFranchiseColor(h.primaryFranchise);
   const tc = TIER_COLORS[h.tier];
-  const isSelected = selectedVal === hId;
+  const isSelected = selectedVal === slug;
   return `
-    <div class="trade-pc ${isSelected ? 'selected' : ''} ${selectable ? 'selectable' : ''}" data-id="${hId}" style="--fc:${fc}">
+    <div class="trade-pc ${isSelected ? 'selected' : ''} selectable" data-id="${slug}" style="--fc:${fc}">
       <div class="tpc-stripe"></div>
       <div class="tpc-avatar" style="border-color:${fc}">${getInitials(h.name)}</div>
       <div class="tpc-info">
@@ -85,35 +54,79 @@ function playerCard(hId: string, selectable: boolean, selectedVal: string, onSel
     </div>`;
 }
 
+function lockedPanel(action: string): string {
+  return `
+    <div class="league-setup">
+      <div class="ls-prompt">Sign in to ${action}</div>
+      <div class="ls-btns"><button class="ls-btn" id="trades-lock-sign-in">Sign In</button></div>
+    </div>`;
+}
+
+async function loadTradeData() {
+  if (!myTeam) return;
+  loadingTrades = true;
+  renderShell();
+  try {
+    [opponents, pendingTrades, tradeHistory] = await Promise.all([
+      fetchOpponentTeams(myTeam.leagueId, myTeam.teamId),
+      fetchPendingTrades(myTeam.teamId),
+      fetchTeamTradeHistory(myTeam.teamId),
+    ]);
+  } finally {
+    loadingTrades = false;
+    renderShell();
+  }
+}
+
 export function renderTrades() {
   const panel = document.getElementById('trades-panel');
   if (!panel) return;
 
-  buildOpponents();
+  if (!getCurrentUser()) {
+    panel.innerHTML = lockedPanel('trade');
+    document.getElementById('trades-lock-sign-in')?.addEventListener('click', openAuthModal);
+    return;
+  }
 
+  if (!myTeam) {
+    panel.innerHTML = '<div class="elog-empty-sub">Set up a league in the Command Center before trading.</div>';
+    return;
+  }
+
+  if (opponents.length === 0 && pendingTrades.length === 0 && tradeHistory.length === 0 && !loadingTrades) {
+    loadTradeData();
+    return;
+  }
+
+  renderShell();
+}
+
+function renderShell() {
+  const panel = document.getElementById('trades-panel');
+  if (!panel || !myTeam) return;
+
+  const myRosterSlugs = getMyRosterSlugs();
   const opp = selectedOpponent ? getOpponent(selectedOpponent) : null;
 
   const oppListHTML = opponents.map(o => `
-    <div class="trade-opp ${selectedOpponent === o.id ? 'active' : ''}" data-id="${o.id}" style="--oc:${o.color}">
+    <div class="trade-opp ${selectedOpponent === o.teamId ? 'active' : ''}" data-id="${o.teamId}">
       <div class="to-stripe"></div>
-      <div class="to-icon" style="background:${o.color}22;border:1px solid ${o.color}55;color:${o.color}">
-        ${o.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
-      </div>
+      <div class="to-icon">${o.name.split(' ').map(w => w[0]).join('').slice(0, 2)}</div>
       <div class="to-info">
         <div class="to-name">${o.name}</div>
         <div class="to-count">${o.roster.length} players</div>
       </div>
-    </div>`).join('');
+    </div>`).join('') || '<div class="trade-empty">No other teams in your league yet — share your invite code.</div>';
 
-  const myRosterHTML = roster.size === 0
+  const myRosterHTML = myRosterSlugs.length === 0
     ? '<div class="trade-empty">Draft players first to propose a trade</div>'
-    : Array.from(roster).map(id => playerCard(id, true, myOfferPick, (pid) => { myOfferPick = pid; })).join('');
+    : myRosterSlugs.map(slug => playerCard(slug, myOfferPick)).join('');
 
   const theirRosterHTML = !opp
     ? '<div class="trade-empty">Select an opponent to see their roster</div>'
-    : opp.roster.map(id => playerCard(id, true, theirOfferPick, (pid) => { theirOfferPick = pid; })).join('');
+    : opp.roster.map(slug => playerCard(slug, theirOfferPick)).join('');
 
-  const canPropose = myOfferPick && theirOfferPick && roster.size > 0 && opp;
+  const canPropose = myOfferPick && theirOfferPick && myRosterSlugs.length > 0 && opp && !proposing;
 
   const valueComparison = () => {
     if (!myOfferPick || !theirOfferPick) return '';
@@ -123,28 +136,43 @@ export function renderTrades() {
     const diff = myH.fantasyValue - theirH.fantasyValue;
     const pct = Math.round((diff / theirH.fantasyValue) * 100);
     const color = diff > 0 ? '#5c9e6e' : diff < 0 ? '#b5426a' : '#c9a84c';
-    const label = diff > 0 ? `You overpay by ${pct}% — trade likely accepted` : diff < 0 ? `You underpay by ${Math.abs(pct)}% — trade may be rejected` : 'Even trade — strong acceptance odds';
+    const label = diff > 0 ? `You're offering ${pct}% more value` : diff < 0 ? `You're offering ${Math.abs(pct)}% less value` : 'Even value trade';
     return `<div class="trade-value-comp" style="color:${color}">${label}</div>`;
   };
 
-  const pendingHTML = pendingTrades.length === 0
-    ? '<div class="trade-empty" style="padding:10px 0">No trades yet</div>'
+  const pendingInboxHTML = pendingTrades.length === 0
+    ? '<div class="trade-empty" style="padding:10px 0">No incoming offers</div>'
     : pendingTrades.map(t => {
-        const myH = HOUSEWIVES.find(h => h.id === t.myOffer);
-        const theirH = HOUSEWIVES.find(h => h.id === t.theirOffer);
-        const oppTeam = getOpponent(t.fromTeam);
-        const statusColor = t.status === 'accepted' ? '#5c9e6e' : t.status === 'rejected' ? '#b5426a' : '#c9a84c';
+        const myH = HOUSEWIVES.find(h => h.id === t.offeredSlug);
+        const theirH = HOUSEWIVES.find(h => h.id === t.requestedSlug);
         return `
           <div class="trade-log-row">
-            <div class="tlr-teams">${myH?.name ?? '?'} → ${theirH?.name ?? '?'}</div>
-            <div class="tlr-opp">${oppTeam?.name ?? t.fromTeam}</div>
+            <div class="tlr-teams">${t.fromTeamName}: ${myH?.name ?? '?'} → for your ${theirH?.name ?? '?'}</div>
+            <div class="tlr-actions" style="margin-top:6px">
+              <button class="pm-draft-btn trade-accept-btn" data-id="${t.id}" style="margin-right:6px">Accept</button>
+              <button class="pm-draft-btn trade-reject-btn" data-id="${t.id}">Reject</button>
+            </div>
+          </div>`;
+      }).join('');
+
+  const historyHTML = tradeHistory.length === 0
+    ? '<div class="trade-empty" style="padding:10px 0">No trades yet</div>'
+    : tradeHistory.map(t => {
+        const offeredH = HOUSEWIVES.find(h => h.id === t.offeredSlug);
+        const requestedH = HOUSEWIVES.find(h => h.id === t.requestedSlug);
+        const statusColor = t.status === 'accepted' ? '#5c9e6e' : t.status === 'rejected' ? '#b5426a' : '#c9a84c';
+        const label = t.isIncoming
+          ? `${t.otherTeamName} offered ${offeredH?.name ?? '?'} for your ${requestedH?.name ?? '?'}`
+          : `You offered ${offeredH?.name ?? '?'} for ${t.otherTeamName}'s ${requestedH?.name ?? '?'}`;
+        return `
+          <div class="trade-log-row">
+            <div class="tlr-teams">${label}</div>
             <div class="tlr-status" style="color:${statusColor}">${t.status.toUpperCase()}</div>
           </div>`;
       }).join('');
 
   panel.innerHTML = `
     <div class="trade-layout">
-      <!-- LEFT: Opponents -->
       <div class="trade-col trade-left">
         <div class="trade-col-header">
           <span class="trade-col-label">Opponents</span>
@@ -153,12 +181,16 @@ export function renderTrades() {
         <div class="trade-opp-list" id="trade-opp-list">${oppListHTML}</div>
 
         <div class="trade-col-header" style="margin-top:2px">
+          <span class="trade-col-label">Pending Offers For You</span>
+        </div>
+        <div class="trade-log" id="trade-pending-list">${pendingInboxHTML}</div>
+
+        <div class="trade-col-header" style="margin-top:2px">
           <span class="trade-col-label">Trade History</span>
         </div>
-        <div class="trade-log">${pendingHTML}</div>
+        <div class="trade-log">${historyHTML}</div>
       </div>
 
-      <!-- CENTER: My Roster -->
       <div class="trade-col trade-center">
         <div class="trade-col-header">
           <span class="trade-col-label">My Roster</span>
@@ -167,7 +199,6 @@ export function renderTrades() {
         <div class="trade-roster-list" id="trade-my-roster">${myRosterHTML}</div>
       </div>
 
-      <!-- RIGHT: Proposal + Their Roster -->
       <div class="trade-col trade-right">
         <div class="trade-col-header">
           <span class="trade-col-label">Their Roster</span>
@@ -191,8 +222,9 @@ export function renderTrades() {
             </div>
             ${valueComparison()}
             <button class="trade-submit-btn ${canPropose ? '' : 'disabled'}" id="trade-submit" ${canPropose ? '' : 'disabled'}>
-              Propose Trade
+              ${proposing ? 'Sending…' : 'Propose Trade'}
             </button>
+            ${tradeError ? `<div style="color:#c0546e;font-size:11px;margin-top:8px">${tradeError}</div>` : ''}
           </div>` : `
           <div class="trade-proposal-hint">
             Select a player from your roster and one from their roster to propose a trade
@@ -200,67 +232,58 @@ export function renderTrades() {
       </div>
     </div>`;
 
-  // Wire up event listeners
   document.getElementById('trade-opp-list')?.querySelectorAll<HTMLElement>('.trade-opp').forEach(el => {
     el.addEventListener('click', () => {
       selectedOpponent = el.dataset.id!;
       theirOfferPick = '';
-      renderTrades();
+      renderShell();
     });
   });
 
   document.getElementById('trade-my-roster')?.querySelectorAll<HTMLElement>('.trade-pc.selectable').forEach(el => {
     el.addEventListener('click', () => {
       myOfferPick = myOfferPick === el.dataset.id ? '' : el.dataset.id!;
-      renderTrades();
+      renderShell();
     });
   });
 
   document.getElementById('trade-their-roster')?.querySelectorAll<HTMLElement>('.trade-pc.selectable').forEach(el => {
     el.addEventListener('click', () => {
       theirOfferPick = theirOfferPick === el.dataset.id ? '' : el.dataset.id!;
-      renderTrades();
+      renderShell();
     });
   });
 
-  document.getElementById('trade-submit')?.addEventListener('click', () => {
-    if (!myOfferPick || !theirOfferPick || !selectedOpponent) return;
-
-    const myH = HOUSEWIVES.find(h => h.id === myOfferPick);
-    const theirH = HOUSEWIVES.find(h => h.id === theirOfferPick);
-    if (!myH || !theirH) return;
-
-    // Acceptance probability: based on value ratio
-    const ratio = myH.fantasyValue / theirH.fantasyValue;
-    const acceptProb = ratio >= 0.85 ? 0.85 : ratio >= 0.7 ? 0.6 : 0.3;
-    const accepted = Math.random() < acceptProb;
-
-    const trade: TradeOffer = {
-      id: Date.now().toString(),
-      fromTeam: selectedOpponent,
-      myOffer: myOfferPick,
-      theirOffer: theirOfferPick,
-      status: accepted ? 'accepted' : 'rejected',
-      submittedAt: new Date().toISOString(),
-    };
-
-    pendingTrades.unshift(trade);
-
-    if (accepted) {
-      roster.delete(myOfferPick);
-      roster.add(theirOfferPick);
-      const opp = getOpponent(selectedOpponent);
-      if (opp) {
-        opp.roster = opp.roster.filter(id => id !== theirOfferPick);
-        opp.roster.push(myOfferPick);
-      }
-
-      // Trigger fantasy refresh
-      document.dispatchEvent(new CustomEvent('thl:trade-complete'));
+  document.getElementById('trade-submit')?.addEventListener('click', async () => {
+    if (!myOfferPick || !theirOfferPick || !selectedOpponent || !myTeam) return;
+    proposing = true;
+    tradeError = '';
+    renderShell();
+    try {
+      await proposeTrade(myTeam.leagueId, myTeam.teamId, selectedOpponent, myOfferPick, theirOfferPick);
+      myOfferPick = '';
+      theirOfferPick = '';
+      await loadTradeData();
+    } catch (err) {
+      tradeError = err instanceof Error ? err.message : 'Could not send that trade.';
+    } finally {
+      proposing = false;
+      renderShell();
     }
+  });
 
-    myOfferPick = '';
-    theirOfferPick = '';
-    renderTrades();
+  panel.querySelectorAll<HTMLElement>('.trade-accept-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await respondToTrade(btn.dataset.id!, true);
+      await loadTradeData();
+      document.dispatchEvent(new CustomEvent('thl:trade-complete'));
+    });
+  });
+
+  panel.querySelectorAll<HTMLElement>('.trade-reject-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await respondToTrade(btn.dataset.id!, false);
+      await loadTradeData();
+    });
   });
 }
