@@ -408,7 +408,7 @@ export const HOUSEWIVES: Housewife[] = [
   // ── MELBOURNE ─────────────────────────────────────────────────────────────
   {
     id: 'gina-liano', name: 'Gina Liano', slug: 'gina-liano',
-    franchises: ['rhome'], primaryFranchise: 'rhome',
+    franchises: ['rhom-au'], primaryFranchise: 'rhom-au',
     status: 'legend', debutYear: 2014, lastSeasonYear: 2017, seasonsCount: 4,
     fantasyValue: 700, tier: 'elite',
     tagline: 'Melbourne\'s Criminal Barrister',
@@ -416,7 +416,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'janet-roach', name: 'Janet Roach', slug: 'janet-roach',
-    franchises: ['rhome'], primaryFranchise: 'rhome',
+    franchises: ['rhom-au'], primaryFranchise: 'rhom-au',
     status: 'legend', debutYear: 2014, lastSeasonYear: 2017, seasonsCount: 4,
     fantasyValue: 600, tier: 'premium',
     tagline: 'Melbourne Maven',
@@ -424,7 +424,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'gamble-breaux', name: 'Gamble Breaux', slug: 'gamble-breaux',
-    franchises: ['rhome'], primaryFranchise: 'rhome',
+    franchises: ['rhom-au'], primaryFranchise: 'rhom-au',
     status: 'legend', debutYear: 2015, lastSeasonYear: 2021, seasonsCount: 3,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Rick Wolfe\'s Wife',
@@ -433,7 +433,7 @@ export const HOUSEWIVES: Housewife[] = [
   // ── SYDNEY ────────────────────────────────────────────────────────────────
   {
     id: 'athena-x', name: 'Athena X Levendi', slug: 'athena-x',
-    franchises: ['rhosy'], primaryFranchise: 'rhosy',
+    franchises: ['rhos-au'], primaryFranchise: 'rhos-au',
     status: 'legend', debutYear: 2017, lastSeasonYear: 2017, seasonsCount: 1,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Sydney Art World',
@@ -442,7 +442,7 @@ export const HOUSEWIVES: Housewife[] = [
   // ── CHESHIRE ──────────────────────────────────────────────────────────────
   {
     id: 'dawn-ward', name: 'Dawn Ward', slug: 'dawn-ward',
-    franchises: ['rhoch'], primaryFranchise: 'rhoch',
+    franchises: ['rwcr'], primaryFranchise: 'rwcr',
     status: 'current', debutYear: 2015, seasonsCount: 8,
     fantasyValue: 700, tier: 'elite',
     tagline: 'Cheshire\'s Queen',
@@ -450,7 +450,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'leanne-brown', name: 'Leanne Brown', slug: 'leanne-brown',
-    franchises: ['rhoch'], primaryFranchise: 'rhoch',
+    franchises: ['rwcr'], primaryFranchise: 'rwcr',
     status: 'current', debutYear: 2015, seasonsCount: 7,
     fantasyValue: 600, tier: 'premium',
     tagline: 'Mrs. Brown',
@@ -867,7 +867,7 @@ export const HOUSEWIVES: Housewife[] = [
   // ── MELBOURNE (additional) ────────────────────────────────────────────────
   {
     id: 'lydia-schiavello', name: 'Lydia Schiavello', slug: 'lydia-schiavello',
-    franchises: ['rhome'], primaryFranchise: 'rhome',
+    franchises: ['rhom-au'], primaryFranchise: 'rhom-au',
     status: 'legend', debutYear: 2014, lastSeasonYear: 2016, seasonsCount: 2,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Melbourne Mystic',
@@ -875,7 +875,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'pettifleur-berenger', name: 'Pettifleur Berenger', slug: 'pettifleur-berenger',
-    franchises: ['rhome'], primaryFranchise: 'rhome',
+    franchises: ['rhom-au'], primaryFranchise: 'rhom-au',
     status: 'legend', debutYear: 2015, lastSeasonYear: 2016, seasonsCount: 2,
     fantasyValue: 500, tier: 'standard',
     tagline: 'Switch the Bitch',
@@ -883,7 +883,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'jackie-gillies', name: 'Jackie Gillies', slug: 'jackie-gillies',
-    franchises: ['rhome'], primaryFranchise: 'rhome',
+    franchises: ['rhom-au'], primaryFranchise: 'rhom-au',
     status: 'legend', debutYear: 2014, lastSeasonYear: 2021, seasonsCount: 5,
     fantasyValue: 500, tier: 'standard',
     tagline: 'Silverchair\'s Wife',
@@ -893,7 +893,7 @@ export const HOUSEWIVES: Housewife[] = [
   // ── CHESHIRE (additional) ─────────────────────────────────────────────────
   {
     id: 'tanya-bardsley', name: 'Tanya Bardsley', slug: 'tanya-bardsley',
-    franchises: ['rhoch'], primaryFranchise: 'rhoch',
+    franchises: ['rwcr'], primaryFranchise: 'rwcr',
     status: 'former', debutYear: 2016, lastSeasonYear: 2023, seasonsCount: 7,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Phil Bardsley\'s Wife',
@@ -901,7 +901,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'lauren-simon', name: 'Lauren Simon', slug: 'lauren-simon',
-    franchises: ['rhoch'], primaryFranchise: 'rhoch',
+    franchises: ['rwcr'], primaryFranchise: 'rwcr',
     status: 'former', debutYear: 2015, lastSeasonYear: 2022, seasonsCount: 7,
     fantasyValue: 500, tier: 'standard',
     tagline: 'Cheshire Socialite',
@@ -1275,7 +1275,7 @@ export const HOUSEWIVES: Housewife[] = [
   // ── MELBOURNE (complete) ──────────────────────────────────────────────────
   {
     id: 'chyka-keebaugh', name: 'Chyka Keebaugh', slug: 'chyka-keebaugh',
-    franchises: ['rhome'], primaryFranchise: 'rhome',
+    franchises: ['rhom-au'], primaryFranchise: 'rhom-au',
     status: 'legend', debutYear: 2014, lastSeasonYear: 2017, seasonsCount: 4,
     fantasyValue: 520, tier: 'standard',
     tagline: 'Melbourne Entertainer',
@@ -1283,7 +1283,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'venus-behbahani-clark', name: 'Venus Behbahani-Clark', slug: 'venus-behbahani-clark',
-    franchises: ['rhome'], primaryFranchise: 'rhome',
+    franchises: ['rhom-au'], primaryFranchise: 'rhom-au',
     status: 'legend', debutYear: 2017, lastSeasonYear: 2019, seasonsCount: 2,
     fantasyValue: 450, tier: 'standard',
     tagline: 'Melbourne Persian',
@@ -1291,7 +1291,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'sally-bloomfield', name: 'Sally Bloomfield', slug: 'sally-bloomfield',
-    franchises: ['rhome'], primaryFranchise: 'rhome',
+    franchises: ['rhom-au'], primaryFranchise: 'rhom-au',
     status: 'legend', debutYear: 2017, lastSeasonYear: 2019, seasonsCount: 2,
     fantasyValue: 420, tier: 'standard',
     tagline: 'Melbourne Socialite',
@@ -1301,7 +1301,7 @@ export const HOUSEWIVES: Housewife[] = [
   // ── CHESHIRE (complete) ────────────────────────────────────────────────────
   {
     id: 'ampika-pickston', name: 'Ampika Pickston', slug: 'ampika-pickston',
-    franchises: ['rhoch'], primaryFranchise: 'rhoch',
+    franchises: ['rwcr'], primaryFranchise: 'rwcr',
     status: 'current', debutYear: 2015, seasonsCount: 8,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Thai-British Powerhouse',
@@ -1309,7 +1309,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'seema-malhotra', name: 'Seema Malhotra', slug: 'seema-malhotra',
-    franchises: ['rhoch'], primaryFranchise: 'rhoch',
+    franchises: ['rwcr'], primaryFranchise: 'rwcr',
     status: 'current', debutYear: 2016, seasonsCount: 8,
     fantasyValue: 500, tier: 'standard',
     tagline: 'India Fashion House',
@@ -1317,7 +1317,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'rachel-lugo', name: 'Rachel Lugo', slug: 'rachel-lugo',
-    franchises: ['rhoch'], primaryFranchise: 'rhoch',
+    franchises: ['rwcr'], primaryFranchise: 'rwcr',
     status: 'current', debutYear: 2017, seasonsCount: 6,
     fantasyValue: 480, tier: 'standard',
     tagline: 'The Cheshire Outsider',
@@ -1325,7 +1325,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'magali-gorre', name: 'Magali Gorré', slug: 'magali-gorre',
-    franchises: ['rhoch'], primaryFranchise: 'rhoch',
+    franchises: ['rwcr'], primaryFranchise: 'rwcr',
     status: 'legend', debutYear: 2015, lastSeasonYear: 2016, seasonsCount: 2,
     fantasyValue: 420, tier: 'standard',
     tagline: 'Dean Friedman\'s Wife',
@@ -1333,7 +1333,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'lystra-adams', name: 'Lystra Adams', slug: 'lystra-adams',
-    franchises: ['rhoch'], primaryFranchise: 'rhoch',
+    franchises: ['rwcr'], primaryFranchise: 'rwcr',
     status: 'current', debutYear: 2022, seasonsCount: 5,
     fantasyValue: 490, tier: 'standard',
     tagline: 'Cheshire Caribbean Queen',
@@ -1343,7 +1343,7 @@ export const HOUSEWIVES: Housewife[] = [
   // ── DURBAN ────────────────────────────────────────────────────────────────
   {
     id: 'sorisha-naidoo', name: 'Sorisha Naidoo', slug: 'sorisha-naidoo',
-    franchises: ['rhodu-za'], primaryFranchise: 'rhodu-za',
+    franchises: ['rhodu-sa'], primaryFranchise: 'rhodu-sa',
     status: 'current', debutYear: 2021, seasonsCount: 5,
     fantasyValue: 600, tier: 'premium',
     tagline: 'Durban Diamonds',
@@ -1351,7 +1351,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'nonku-williams', name: 'Nonku Williams', slug: 'nonku-williams',
-    franchises: ['rhodu-za'], primaryFranchise: 'rhodu-za',
+    franchises: ['rhodu-sa'], primaryFranchise: 'rhodu-sa',
     status: 'current', debutYear: 2021, seasonsCount: 5,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Durban\'s Drama Queen',
@@ -1359,7 +1359,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'laconco', name: 'LaConco', slug: 'laconco',
-    franchises: ['rhodu-za'], primaryFranchise: 'rhodu-za',
+    franchises: ['rhodu-sa'], primaryFranchise: 'rhodu-sa',
     status: 'former', debutYear: 2021, lastSeasonYear: 2022, seasonsCount: 2,
     fantasyValue: 520, tier: 'standard',
     tagline: 'Former President\'s Ex',
@@ -1367,7 +1367,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'jojo-robinson', name: 'JoJo Robinson', slug: 'jojo-robinson',
-    franchises: ['rhodu-za'], primaryFranchise: 'rhodu-za',
+    franchises: ['rhodu-sa'], primaryFranchise: 'rhodu-sa',
     status: 'current', debutYear: 2022, seasonsCount: 4,
     fantasyValue: 500, tier: 'standard',
     tagline: 'Durban Entertainer',
@@ -1375,7 +1375,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'annie-mthembu', name: 'Anne-Toni Mthembu', slug: 'annie-mthembu',
-    franchises: ['rhodu-za'], primaryFranchise: 'rhodu-za',
+    franchises: ['rhodu-sa'], primaryFranchise: 'rhodu-sa',
     status: 'legend', debutYear: 2021, lastSeasonYear: 2021, seasonsCount: 1,
     fantasyValue: 420, tier: 'standard',
     tagline: 'Durban Original',
@@ -1385,7 +1385,7 @@ export const HOUSEWIVES: Housewife[] = [
   // ── LAGOS ─────────────────────────────────────────────────────────────────
   {
     id: 'laura-ikeji-kanu', name: 'Laura Ikeji-Kanu', slug: 'laura-ikeji-kanu',
-    franchises: ['rholag'], primaryFranchise: 'rholag',
+    franchises: ['rhol'], primaryFranchise: 'rhol',
     status: 'current', debutYear: 2022, seasonsCount: 3,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Lagos Blogger Queen',
@@ -1393,7 +1393,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'toyin-lawani', name: 'Toyin Lawani-Adebayo', slug: 'toyin-lawani',
-    franchises: ['rholag'], primaryFranchise: 'rholag',
+    franchises: ['rhol'], primaryFranchise: 'rhol',
     status: 'current', debutYear: 2022, seasonsCount: 3,
     fantasyValue: 600, tier: 'premium',
     tagline: 'Tiannah Empire',
@@ -1401,7 +1401,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'chioma-ikokwu', name: 'Chioma Ikokwu', slug: 'chioma-ikokwu',
-    franchises: ['rholag'], primaryFranchise: 'rholag',
+    franchises: ['rhol'], primaryFranchise: 'rhol',
     status: 'current', debutYear: 2022, seasonsCount: 3,
     fantasyValue: 520, tier: 'standard',
     tagline: 'Lagos Elegance',
@@ -1409,7 +1409,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'iyabo-ojo', name: 'Iyabo Ojo', slug: 'iyabo-ojo',
-    franchises: ['rholag'], primaryFranchise: 'rholag',
+    franchises: ['rhol'], primaryFranchise: 'rhol',
     status: 'current', debutYear: 2022, seasonsCount: 3,
     fantasyValue: 580, tier: 'premium',
     tagline: 'Nollywood Queen',
@@ -1417,7 +1417,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'carolyna-hutchings', name: 'Carolyna Hutchings', slug: 'carolyna-hutchings',
-    franchises: ['rholag'], primaryFranchise: 'rholag',
+    franchises: ['rhol'], primaryFranchise: 'rhol',
     status: 'current', debutYear: 2022, seasonsCount: 3,
     fantasyValue: 480, tier: 'standard',
     tagline: 'Lagos Social Scene',
@@ -1425,7 +1425,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'mariam-timmer', name: 'Mariam Timmer', slug: 'mariam-timmer',
-    franchises: ['rholag'], primaryFranchise: 'rholag',
+    franchises: ['rhol'], primaryFranchise: 'rhol',
     status: 'current', debutYear: 2022, seasonsCount: 3,
     fantasyValue: 480, tier: 'standard',
     tagline: 'Dutch-Nigerian Bridge',
@@ -1553,7 +1553,7 @@ export const HOUSEWIVES: Housewife[] = [
   // ── SYDNEY (complete cast) ────────────────────────────────────────────────
   {
     id: 'lisa-oldfield', name: 'Lisa Oldfield', slug: 'lisa-oldfield',
-    franchises: ['rhosy'], primaryFranchise: 'rhosy',
+    franchises: ['rhos-au'], primaryFranchise: 'rhos-au',
     status: 'legend', debutYear: 2017, lastSeasonYear: 2017, seasonsCount: 1,
     fantasyValue: 550, tier: 'premium',
     tagline: 'Sydney\'s Most Controversial',
@@ -1561,7 +1561,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'krissy-marsh', name: 'Krissy Marsh', slug: 'krissy-marsh',
-    franchises: ['rhosy'], primaryFranchise: 'rhosy',
+    franchises: ['rhos-au'], primaryFranchise: 'rhos-au',
     status: 'legend', debutYear: 2017, lastSeasonYear: 2017, seasonsCount: 1,
     fantasyValue: 480, tier: 'standard',
     tagline: 'Sydney PR Queen',
@@ -1569,7 +1569,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'nicole-oneil', name: 'Nicole O\'Neil', slug: 'nicole-oneil',
-    franchises: ['rhosy'], primaryFranchise: 'rhosy',
+    franchises: ['rhos-au'], primaryFranchise: 'rhos-au',
     status: 'legend', debutYear: 2017, lastSeasonYear: 2017, seasonsCount: 1,
     fantasyValue: 460, tier: 'standard',
     tagline: 'Sydney Fashion',
@@ -1577,7 +1577,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'matty-samaei', name: 'Matty Samaei', slug: 'matty-samaei',
-    franchises: ['rhosy'], primaryFranchise: 'rhosy',
+    franchises: ['rhos-au'], primaryFranchise: 'rhos-au',
     status: 'legend', debutYear: 2017, lastSeasonYear: 2017, seasonsCount: 1,
     fantasyValue: 460, tier: 'standard',
     tagline: 'Persian Sydney',
@@ -1585,7 +1585,7 @@ export const HOUSEWIVES: Housewife[] = [
   },
   {
     id: 'victoria-rees', name: 'Victoria Rees', slug: 'victoria-rees',
-    franchises: ['rhosy'], primaryFranchise: 'rhosy',
+    franchises: ['rhos-au'], primaryFranchise: 'rhos-au',
     status: 'legend', debutYear: 2017, lastSeasonYear: 2017, seasonsCount: 1,
     fantasyValue: 420, tier: 'standard',
     tagline: 'Sydney Social Scene',
