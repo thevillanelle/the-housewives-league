@@ -93,7 +93,9 @@ export async function createLeague(leagueName: string, teamName: string, maxTeam
 
   const { data: league, error: leagueError } = await supabase!
     .from('leagues')
-    .insert({ name: leagueName, slug, commissioner_id: user.id, max_teams: maxTeams, roster_size: 10, is_public: false })
+    // is_public gates the leagues SELECT RLS policy — anyone with the invite code
+    // needs to be able to look the league up by slug to join it, not just the commissioner.
+    .insert({ name: leagueName, slug, commissioner_id: user.id, max_teams: maxTeams, roster_size: 10, is_public: true })
     .select()
     .single();
   if (leagueError) throw leagueError;
